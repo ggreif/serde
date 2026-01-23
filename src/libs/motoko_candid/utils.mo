@@ -103,7 +103,7 @@ module {
                 )
             );
             case (unsupported) {
-                Debug.trap("toArgeType(): Unsupported type " # debug_show unsupported);
+                Debug.trap("toArgType(): Unsupported type " # debug_show unsupported);
             };
         };
     };
