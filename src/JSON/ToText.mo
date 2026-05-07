@@ -1,4 +1,6 @@
 import Buffer "mo:base@0.16/Buffer";
+import Char "mo:core@2.4/Char";
+import Nat32 "mo:core@2.4/Nat32";
 import Result "mo:core@2.4/Result";
 import Text "mo:core@2.4/Text";
 
@@ -14,6 +16,38 @@ module {
     type JSON = JSON.JSON;
     type Candid = Candid.Candid;
     type Result<A, B> = Result.Result<A, B>;
+
+    // Escape a Text value for inclusion in a JSON string literal,
+    // per RFC 8259 §7. Order matters: backslash MUST be escaped
+    // first — every later replacement emits a `\`, and a final
+    // backslash pass would re-double those new backslashes.
+    func escapeJSONString(s : Text) : Text {
+        let chained =
+            Text.replace(s, #text "\\", "\\\\")
+            |> Text.replace(_, #text "\"", "\\\"")
+            |> Text.replace(_, #text "\n", "\\n")
+            |> Text.replace(_, #text "\r", "\\r")
+            |> Text.replace(_, #text "\t", "\\t")
+            |> Text.replace(_, #text "\u{08}", "\\b")
+            |> Text.replace(_, #text "\u{0c}", "\\f");
+        // Remaining U+0000..U+001F (minus the named ones above) → \u00XX.
+        let buf = Buffer.Buffer<Char>(chained.size());
+        let hex = Text.toArray("0123456789abcdef");
+        for (c in chained.chars()) {
+            let n = Char.toNat32(c);
+            if (n < 0x20) {
+                buf.add('\\');
+                buf.add('u');
+                buf.add('0');
+                buf.add('0');
+                buf.add(hex[Nat32.toNat(n / 16)]);
+                buf.add(hex[Nat32.toNat(n % 16)]);
+            } else {
+                buf.add(c);
+            };
+        };
+        Text.fromIter(buf.vals())
+    };
 
     /// Converts serialized Candid blob to JSON text
     public func toText(blob : Blob, keys : [Text], options : ?CandidType.Options) : Result<Text, Text> {
@@ -37,7 +71,7 @@ module {
         let json : JSON = switch (candid) {
             case (#Null) #Null;
             case (#Bool(n)) #Boolean(n);
-            case (#Text(n)) #String(Text.replace(n, #text("\""), ("\\\"")));
+            case (#Text(n)) #String(escapeJSONString(n));
 
             case (#Int(n)) #Number(n);
             case (#Int8(n)) #Number(IntX.from8ToInt(n));
