@@ -1,12 +1,12 @@
-import Char "mo:core@2.4/Char";
-import Iter "mo:core@2.4/Iter";
-import List "mo:base/List";
-import Nat32 "mo:core@2.4/Nat32";
-import Text "mo:core@2.4/Text";
+import Char "mo:core/Char";
+import Iter "mo:core/Iter";
+import List "mo:core/pure/List";
+import Nat32 "mo:core/Nat32";
+import Text "mo:core/Text";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";
-import NatX "mo:xtended-numbers@2.3/NatX";
+import NatX "mo:xtended-numbers/NatX";
 
 import Candid "../../Types";
 
@@ -65,7 +65,7 @@ module {
                     parserAs,
                     func(as : List<A>) : Parser<T, List<A>> {
                         if (cond(a, as)) {
-                            P.result<T, List<A>>(List.push(a, as));
+                            P.result<T, List<A>>(List.pushFront(as, a));
                         } else {
                             P.zero();
                         };
@@ -86,7 +86,7 @@ module {
             return NatX.from32To8(digit);
         };
 
-        if (Char.isUpper(char)) {
+        if (char >= 'A' and char <= 'Z') {
             let digit = charCode - Char.toNat32('A') + 10;
 
             return NatX.from32To8(digit);
@@ -99,7 +99,7 @@ module {
     };
 
     public func toText(chars : List<Char>) : Text {
-        let iter = List.toIter(chars);
+        let iter = List.values(chars);
         Text.fromIter(iter);
     };
 

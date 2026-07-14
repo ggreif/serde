@@ -1,10 +1,10 @@
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
-import List "mo:base/List";
-import Nat8 "mo:core@2.4/Nat8";
-import Nat16 "mo:core@2.4/Nat16";
-import Nat32 "mo:core@2.4/Nat32";
-import Nat64 "mo:core@2.4/Nat64";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import List "mo:core/pure/List";
+import Nat8 "mo:core/Nat8";
+import Nat16 "mo:core/Nat16";
+import Nat32 "mo:core/Nat32";
+import Nat64 "mo:core/Nat64";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";

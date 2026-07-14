@@ -1,5 +1,5 @@
-import Float "mo:core@2.4/Float";
-import List "mo:base/List";
+import Float "mo:core/Float";
+import List "mo:core/pure/List";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";

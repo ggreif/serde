@@ -1,4 +1,4 @@
-import List "mo:base/List";
+import List "mo:core/pure/List";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";

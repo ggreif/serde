@@ -1,10 +1,10 @@
-import Iter "mo:core@2.4/Iter";
-import List "mo:base/List";
-import Nat64 "mo:core@2.4/Nat64";
+import Iter "mo:core/Iter";
+import List "mo:core/pure/List";
+import Nat64 "mo:core/Nat64";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";
-import NatX "mo:xtended-numbers@2.3/NatX";
+import NatX "mo:xtended-numbers/NatX";
 
 import Candid "../../Types";
 import { ignoreSpace; hexChar; fromHex; removeUnderscore; listToNat } "Common";
@@ -50,7 +50,7 @@ module {
             func(chars : List<Char>) : Nat {
                 var n : Nat64 = 0;
 
-                for (hex in List.toIter(chars)) {
+                for (hex in List.values(chars)) {
                     n := (n << 4) + NatX.from8To64(fromHex(hex));
                 };
 

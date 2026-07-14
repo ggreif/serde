@@ -1,10 +1,10 @@
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
-import List "mo:base/List";
-import Int8 "mo:core@2.4/Int8";
-import Int16 "mo:core@2.4/Int16";
-import Int32 "mo:core@2.4/Int32";
-import Int64 "mo:core@2.4/Int64";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import List "mo:core/pure/List";
+import Int8 "mo:core/Int8";
+import Int16 "mo:core/Int16";
+import Int32 "mo:core/Int32";
+import Int64 "mo:core/Int64";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";

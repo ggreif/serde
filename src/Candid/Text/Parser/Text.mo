@@ -1,7 +1,7 @@
-import Char "mo:core@2.4/Char";
-import Iter "mo:core@2.4/Iter";
-import List "mo:base/List";
-import Text "mo:core@2.4/Text";
+import Char "mo:core/Char";
+import Iter "mo:core/Iter";
+import List "mo:core/pure/List";
+import Text "mo:core/Text";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";
@@ -31,7 +31,7 @@ module {
                 C.String.string("\""),
             ),
             func(chars : List<Char>) : Text {
-                Text.fromIter(List.toIter(chars));
+                Text.fromIter(List.values(chars));
             },
         );
     };

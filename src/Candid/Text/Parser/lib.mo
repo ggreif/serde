@@ -1,8 +1,8 @@
-import Char "mo:core@2.4/Char";
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
-import Iter "mo:core@2.4/Iter";
-import List "mo:base/List";
+import Char "mo:core/Char";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import Iter "mo:core/Iter";
+import List "mo:core/pure/List";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";
@@ -32,7 +32,7 @@ module CandidParser {
     type Parser<T, A> = P.Parser<T, A>;
 
     public func parse(text : Text) : [Candid] {
-        let chars = List.fromArray(Iter.toArray(text.chars()));
+        let chars = List.fromIter(text.chars());
 
         switch (parseCandid(chars)) {
             case (?candid) candid;

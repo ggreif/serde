@@ -1,5 +1,5 @@
-import Int "mo:core@2.4/Int";
-import List "mo:base/List";
+import Int "mo:core/Int";
+import List "mo:core/pure/List";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";
