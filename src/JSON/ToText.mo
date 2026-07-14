@@ -1,18 +1,18 @@
-import Buffer "mo:base@0.16/Buffer";
-import Char "mo:core@2.4/Char";
-import Nat32 "mo:core@2.4/Nat32";
-import Result "mo:core@2.4/Result";
-import Text "mo:core@2.4/Text";
+import Char "mo:core/Char";
+import Nat32 "mo:core/Nat32";
+import Result "mo:core/Result";
+import Text "mo:core/Text";
 
 import JSON "../../submodules/json.mo/src/JSON";
-import NatX "mo:xtended-numbers@2.3/NatX";
-import IntX "mo:xtended-numbers@2.3/IntX";
+import NatX "mo:xtended-numbers/NatX";
+import IntX "mo:xtended-numbers/IntX";
 
 import Candid "../Candid";
 import CandidType "../Candid/Types";
 import Utils "../Utils";
 
 module {
+    let { Buffer } = Utils;
     type JSON = JSON.JSON;
     type Candid = Candid.Candid;
     type Result<A, B> = Result.Result<A, B>;

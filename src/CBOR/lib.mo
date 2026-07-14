@@ -1,19 +1,18 @@
-import Buffer "mo:base@0.16/Buffer";
-import Blob "mo:core@2.4/Blob";
-import Int8 "mo:core@2.4/Int8";
-import Int16 "mo:core@2.4/Int16";
-import Int32 "mo:core@2.4/Int32";
-import Int64 "mo:core@2.4/Int64";
-import Option "mo:core@2.4/Option";
-import Nat64 "mo:core@2.4/Nat64";
-import Result "mo:core@2.4/Result";
-import Principal "mo:core@2.4/Principal";
+import Blob "mo:core/Blob";
+import Int8 "mo:core/Int8";
+import Int16 "mo:core/Int16";
+import Int32 "mo:core/Int32";
+import Int64 "mo:core/Int64";
+import Option "mo:core/Option";
+import Nat64 "mo:core/Nat64";
+import Result "mo:core/Result";
+import Principal "mo:core/Principal";
 
-import CBOR_Types "mo:cbor@4.1/Types";
-import CBOR_Encoder "mo:cbor@4.1/Encoder";
-import CBOR_Decoder "mo:cbor@4.1/Decoder";
-import NatX "mo:xtended-numbers@2.3/NatX";
-import FloatX "mo:xtended-numbers@2.3/FloatX";
+import CBOR_Types "mo:cbor@4.1.0/Types";
+import CBOR_Encoder "mo:cbor@4.1.0/Encoder";
+import CBOR_Decoder "mo:cbor@4.1.0/Decoder";
+import NatX "mo:xtended-numbers/NatX";
+import FloatX "mo:xtended-numbers/FloatX";
 
 import Candid "../Candid";
 import CandidType "../Candid/Types";
@@ -21,6 +20,7 @@ import CandidType "../Candid/Types";
 import Utils "../Utils";
 
 module {
+    let { Buffer } = Utils;
     public type Candid = CandidType.Candid;
     type Result<A, B> = Result.Result<A, B>;
     type CBOR = CBOR_Types.Value;

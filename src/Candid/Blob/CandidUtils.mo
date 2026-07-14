@@ -1,14 +1,13 @@
-import Array "mo:core@2.4/Array";
-import Buffer "mo:base@0.16/Buffer";
-import Result "mo:core@2.4/Result";
-import Nat32 "mo:core@2.4/Nat32";
-import Nat "mo:core@2.4/Nat";
-import Iter "mo:core@2.4/Iter";
-import Text "mo:core@2.4/Text";
-import Order "mo:core@2.4/Order";
+import Array "mo:core/Array";
+import Result "mo:core/Result";
+import Nat32 "mo:core/Nat32";
+import Nat "mo:core/Nat";
+import Iter "mo:core/Iter";
+import Text "mo:core/Text";
+import Order "mo:core/Order";
 
 import Itertools "mo:itertools@0.2.2/Iter";
-import Map "mo:map@9.0/Map";
+import PureMap "mo:core/pure/Map";
 
 import T "../Types";
 import Utils "../../Utils";
@@ -16,17 +15,15 @@ import Utils "../../Utils";
 module {
 
     type Result<A, B> = Result.Result<A, B>;
-    type Buffer<A> = Buffer.Buffer<A>;
+    type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Iter<A> = Iter.Iter<A>;
     type Hash = Nat32;
-    type Map<K, V> = Map.Map<K, V>;
+    type Map<K, V> = PureMap.Map<K, V>;
     type Order = Order.Order;
 
     type Candid = T.Candid;
     type CandidType = T.CandidType;
     type KeyValuePair = T.KeyValuePair;
-
-    let { thash } = Map;
 
     public func cmp_fields(a : (Text, Any), b : (Text, Any)) : Order {
 
@@ -134,7 +131,7 @@ module {
                         let field_key = fields[i].0;
                         let field_value = fields[i].1;
 
-                        let new_key = switch (Map.get(renaming_map, thash, field_key)) {
+                        let new_key = switch (PureMap.get(renaming_map, Text.compare, field_key)) {
                             case (?new_key) new_key;
                             case (_) field_key;
                         };
@@ -162,7 +159,7 @@ module {
                         let field_key = fields[i].0;
                         let field_value = fields[i].1;
 
-                        let new_key = switch (Map.get(renaming_map, thash, field_key)) {
+                        let new_key = switch (PureMap.get(renaming_map, Text.compare, field_key)) {
                             case (?new_key) new_key;
                             case (_) field_key;
                         };

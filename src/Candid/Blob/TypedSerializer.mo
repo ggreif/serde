@@ -1,20 +1,20 @@
-import Array "mo:core@2.4/Array";
-import Blob "mo:core@2.4/Blob";
-import Buffer "mo:base@0.16/Buffer";
-import Result "mo:core@2.4/Result";
-import Nat64 "mo:core@2.4/Nat64";
-import Nat8 "mo:core@2.4/Nat8";
-import Nat32 "mo:core@2.4/Nat32";
-import Nat "mo:core@2.4/Nat";
-import Iter "mo:core@2.4/Iter";
-import Text "mo:core@2.4/Text";
-import Order "mo:core@2.4/Order";
-import Option "mo:core@2.4/Option";
-import Debug "mo:core@2.4/Debug";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Result "mo:core/Result";
+import Nat64 "mo:core/Nat64";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Nat "mo:core/Nat";
+import Iter "mo:core/Iter";
+import Text "mo:core/Text";
+import Order "mo:core/Order";
+import Option "mo:core/Option";
+import Debug "mo:core/Debug";
 
-import Map "mo:map@9.0/Map";
-import Set "mo:map@9.0/Set";
-import ByteUtils "mo:byte-utils@0.2";
+import PureMap "mo:core/pure/Map";
+import Set "mo:core/pure/Set";
+import Map "mo:core/Map";
+import ByteUtils "mo:byte-utils";
 
 import T "../Types";
 import CandidUtils "CandidUtils";
@@ -30,17 +30,16 @@ module TypedSerializer {
     type Candid = T.Candid;
     type KeyValuePair = T.KeyValuePair;
 
-    type Buffer<A> = Buffer.Buffer<A>;
+    type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Hash = Nat32;
-    type Map<K, V> = Map.Map<K, V>;
+    type Map<K, V> = PureMap.Map<K, V>;
     type Set<A> = Set.Set<A>;
     type Order = Order.Order;
 
     type CandidType = T.CandidType;
     type ShallowCandidTypes = T.ShallowCandidTypes;
 
-    let { n32hash; thash } = Map;
-    let { nhash } = Set;
+    let { Buffer } = Utils;
 
     // Constants
     let C = {
@@ -126,7 +125,7 @@ module TypedSerializer {
 
         // Only encode the types, not the values
         var i = 0;
-        let unique_compound_type_map = Map.new<Text, Nat>();
+        let unique_compound_type_map = Map.empty<Text, Nat>();
 
         while (i < candid_types.size()) {
             Encoder.encode_type_only(
@@ -214,11 +213,11 @@ module TypedSerializer {
         Buffer.toArray(buffer);
     };
 
-    func is_map_equal<K, V>(map1 : Map<K, V>, map2 : Map<K, V>, hasher : Map.HashUtils<K>, is_value_equal : (V, V) -> Bool) : Bool {
-        if (Map.size(map1) != Map.size(map2)) return false;
+    func is_map_equal<K, V>(map1 : Map<K, V>, map2 : Map<K, V>, compare : (K, K) -> Order.Order, is_value_equal : (V, V) -> Bool) : Bool {
+        if (PureMap.size(map1) != PureMap.size(map2)) return false;
 
-        for ((k, v) in Map.entries(map1)) {
-            switch (Map.get(map2, hasher, k)) {
+        for ((k, v) in PureMap.entries(map1)) {
+            switch (PureMap.get(map2, compare, k)) {
                 case (?v2) if (is_value_equal(v, v2)) {};
                 case (_) return false;
             };
@@ -231,8 +230,8 @@ module TypedSerializer {
         if (self.encoder_candid_types != other.encoder_candid_types) return false;
         if (self.decoder_candid_types != other.decoder_candid_types) return false;
         if (self.encoded_type_header != other.encoded_type_header) return false;
-        if (not is_map_equal(self.renaming_map, other.renaming_map, thash, Text.equal)) return false;
-        if (not is_map_equal(self.record_key_map, other.record_key_map, n32hash, Text.equal)) return false;
+        if (not is_map_equal(self.renaming_map, other.renaming_map, Text.compare, Text.equal)) return false;
+        if (not is_map_equal(self.record_key_map, other.record_key_map, Nat32.compare, Text.equal)) return false;
         if (self.options != other.options) return false;
         if (self.compound_types != other.compound_types) return false;
 
@@ -240,7 +239,7 @@ module TypedSerializer {
         func candid_type_equal(t1 : CandidType, t2 : CandidType) : Bool {
             t1 == t2;
         };
-        if (not is_map_equal(self.recursive_types_map, other.recursive_types_map, Map.nhash, candid_type_equal)) return false;
+        if (not is_map_equal(self.recursive_types_map, other.recursive_types_map, Nat.compare, candid_type_equal)) return false;
 
         true;
     };
@@ -251,11 +250,11 @@ module TypedSerializer {
         # "  encoder_candid_types: " # debug_show (self.encoder_candid_types) # "\n"
         # "  decoder_candid_types: " # debug_show (self.decoder_candid_types) # "\n"
         # "  encoded_type_header: " # debug_show (self.encoded_type_header) # "\n"
-        # "  renaming_map: " # debug_show (Map.toArray(self.renaming_map)) # "\n"
-        # "  record_key_map: " # debug_show (Map.toArray(self.record_key_map)) # "\n"
+        # "  renaming_map: " # debug_show (Iter.toArray(PureMap.entries(self.renaming_map))) # "\n"
+        # "  record_key_map: " # debug_show (Iter.toArray(PureMap.entries(self.record_key_map))) # "\n"
         # "  options: " # debug_show (self.options) # "\n"
         # "  compound_types: " # debug_show (self.compound_types) # "\n"
-        # "  recursive_types_map: " # debug_show (Map.toArray(self.recursive_types_map)) # "\n"
+        # "  recursive_types_map: " # debug_show (Iter.toArray(PureMap.entries(self.recursive_types_map))) # "\n"
         # "}";
     };
 
@@ -263,9 +262,9 @@ module TypedSerializer {
     public func new(_candid_types : [CandidType], _options : ?T.Options) : TypedSerializer {
         let options = Option.get(_options, T.defaultOptions);
 
-        let renaming_map = Map.new<Text, Text>();
+        var renaming_map = PureMap.empty<Text, Text>();
         for ((k, v) in options.renameKeys.vals()) {
-            ignore Map.put(renaming_map, thash, k, v);
+            renaming_map := PureMap.add(renaming_map, Text.compare, k, v);
         };
 
         // Encoder types: original types that will use renaming_map during encoding
@@ -302,14 +301,14 @@ module TypedSerializer {
         };
         let record_keys = Buffer.toArray(record_keys_buffer);
 
-        let record_key_map = Map.new<Nat32, Text>();
+        var record_key_map = PureMap.empty<Nat32, Text>();
 
         var i = 0;
 
         while (i < record_keys.size()) {
             let key = formatVariantKey(record_keys[i]);
             let hash = Utils.hash_record_key(key);
-            ignore Map.put(record_key_map, n32hash, hash, key);
+            record_key_map := PureMap.add(record_key_map, Nat32.compare, hash, key);
             i += 1;
         };
 
@@ -322,7 +321,7 @@ module TypedSerializer {
                 let new_key = formatVariantKey(key_pairs_to_rename[j].1);
 
                 let hash = Utils.hash_record_key(original_key);
-                ignore Map.put(record_key_map, n32hash, hash, new_key);
+                record_key_map := PureMap.add(record_key_map, Nat32.compare, hash, new_key);
 
                 j += 1;
             };
@@ -339,7 +338,7 @@ module TypedSerializer {
             record_key_map;
             options;
             compound_types = []; // Will be populated if needed
-            recursive_types_map = Map.new<Nat, CandidType>(); // Initialize empty map
+            recursive_types_map = PureMap.empty<Nat, CandidType>(); // Initialize empty map
         } : TypedSerializer;
     };
 
@@ -347,17 +346,17 @@ module TypedSerializer {
     public func fromBlob(blob : Blob, record_keys : [Text], _options : ?T.Options) : TypedSerializer {
         let options = Option.get(_options, T.defaultOptions);
 
-        let record_key_map = Map.new<Nat32, Text>();
+        var record_key_map = PureMap.empty<Nat32, Text>();
 
         var i = 0;
         while (i < record_keys.size()) {
             let key = formatVariantKey(record_keys[i]);
             let hash = Utils.hash_record_key(key);
-            ignore Map.put(record_key_map, n32hash, hash, key);
+            record_key_map := PureMap.add(record_key_map, Nat32.compare, hash, key);
             i += 1;
         };
 
-        let renaming_map = Map.new<Text, Text>();
+        var renaming_map = PureMap.empty<Text, Text>();
 
         ignore do ? {
             let key_pairs_to_rename = options.renameKeys;
@@ -369,7 +368,7 @@ module TypedSerializer {
 
                 let hash = Utils.hash_record_key(original_key);
 
-                ignore Map.put(renaming_map, thash, original_key, new_key);
+                renaming_map := PureMap.add(renaming_map, Text.compare, original_key, new_key);
 
                 j += 1;
             };
@@ -383,8 +382,8 @@ module TypedSerializer {
 
         let total_compound_types = decode_leb128(bytes, state);
         let compound_types = Decoder.extract_compound_types(bytes, state, total_compound_types, record_key_map);
-        let recursive_types_map = Map.new<Nat, CandidType>();
-        let extracted_candid_types = Decoder.build_types(bytes, state, compound_types, recursive_types_map);
+        let initial_recursive_types_map = PureMap.empty<Nat, CandidType>();
+        let (extracted_candid_types, recursive_types_map) = Decoder.build_types(bytes, state, compound_types, initial_recursive_types_map);
 
         let type_header_size = state[C.BYTES_INDEX];
         let encoded_type_header = Array.tabulate(type_header_size, func(i : Nat) : Nat8 = blob.get(i));
@@ -405,15 +404,16 @@ module TypedSerializer {
         };
     };
 
-    func encode_values(self : TypedSerializer, candid_values : [Candid]) : Result<[Nat8], Text> {
+    /// Encodes values using the precomputed types in this TypedSerializer
+    public func encode(self : TypedSerializer, candid_values : [Candid]) : Result<Blob, Text> {
         if (candid_values.size() != self.encoder_candid_types.size()) {
-            return #err("encode_values: candid_values size does not match encoder_candid_types size");
+            return #err("encode: candid_values size does not match encoder_candid_types size");
         };
 
         let value_buffer = Buffer.Buffer<Nat8>(400);
-        let recursive_map = Map.new<Text, Text>();
+        let recursive_map = PureMap.empty<Text, Text>();
         let counter = [var 0];
-        let unique_compound_type_map = Map.new<Text, Nat>();
+        let unique_compound_type_map = Map.empty<Text, Nat>();
 
         var i = 0;
         while (i < candid_values.size()) {
@@ -430,33 +430,14 @@ module TypedSerializer {
             i += 1;
         };
 
-        #ok(Buffer.toArray(value_buffer));
-    };
-
-    /// Encodes values using the precomputed types in this TypedSerializer
-    public func encode(self : TypedSerializer, candid_values : [Candid]) : Result<Blob, Text> {
-        switch(encode_values(self, candid_values)) {
-            case (#ok(encoded_values)) {
-                #ok(
-                    Blob.fromArray(
-                        Array.concat(
-                            self.encoded_type_header,
-                            encoded_values,
-                        )
-                    )
-                );
-            };
-            case (#err(err_msg)) #err(err_msg);
-        };
-    };
-
-    public func encodeWithNoTypeHeader(self : TypedSerializer, candid_values : [Candid]) : Result<Blob, Text> {
-        switch(encode_values(self, candid_values)) {
-            case (#ok(encoded_values)) {
-                #ok(Blob.fromArray(encoded_values));
-            };
-            case (#err(err_msg)) #err(err_msg);
-        };
+        #ok(
+            Blob.fromArray(
+                Array.concat(
+                    self.encoded_type_header,
+                    Buffer.toArray(value_buffer),
+                )
+            )
+        );
     };
 
     /// Decodes values from a full candid blob using precomputed types
@@ -470,24 +451,12 @@ module TypedSerializer {
             return #err("Invalid Magic Number");
         };
 
-        // Since we have the precomputed encoded_type_header, we can jump directly to the values section
+        // Since we have the precomputed encoded_type_header, we can directly jump to the values section
         // instead of parsing and skipping the type section
         state[C.BYTES_INDEX] := self.encoded_type_header.size();
 
         // Use precomputed types and recursive types map for decoding values
         Decoder.decode_candid_values(bytes, self.decoder_candid_types, state, self.options, self.renaming_map, self.recursive_types_map);
-    };
-
-    /// Decodes values from a candid blob has no type header (only values), using precomputed types
-    public func decodeWithNoTypeHeader(self : TypedSerializer, candid_blob : Blob) : Result<[Candid], Text> {
-        let bytes = candid_blob;
-        let state : [var Nat] = [var 0];
-
-        Decoder.decode_candid_values(bytes, self.decoder_candid_types, state, self.options, self.renaming_map, self.recursive_types_map);
-    };
-
-    public func getTypeHeader(self : TypedSerializer) : [Nat8] {
-        self.encoded_type_header;
     };
 
 };

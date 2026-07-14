@@ -1,41 +1,29 @@
-import Array "mo:core@2.4/Array";
-import VarArray "mo:core@2.4/VarArray";
-import Char "mo:core@2.4/Char";
-import Order "mo:core@2.4/Order";
-import Float "mo:core@2.4/Float";
-import Text "mo:core@2.4/Text";
-import Iter "mo:core@2.4/Iter";
-import Nat64 "mo:core@2.4/Nat64";
-import Nat32 "mo:core@2.4/Nat32";
-import Nat8 "mo:core@2.4/Nat8";
-import Int "mo:core@2.4/Int";
-import Buffer "mo:base@0.16/Buffer";
-import Result "mo:core@2.4/Result";
-import Int64 "mo:core@2.4/Int64";
-import Blob "mo:core@2.4/Blob";
-
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
+import Array "mo:core/Array";
+import Char "mo:core/Char";
+import Order "mo:core/Order";
+import VarArray "mo:core/VarArray";
+import Float "mo:core/Float";
+import Text "mo:core/Text";
+import Iter "mo:core/Iter";
+import Nat64 "mo:core/Nat64";
+import Nat32 "mo:core/Nat32";
+import Nat8 "mo:core/Nat8";
+import Int "mo:core/Int";
+import List "mo:core/List";
+import Result "mo:core/Result";
+import Int64 "mo:core/Int64";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
 import Itertools "mo:itertools@0.2.2/Iter";
-import Map "mo:map@9.0/Map";
-import MapConst "mo:map@9.0/Map/const";
 
-import ByteUtils "mo:byte-utils@0.2";
+import ByteUtils "mo:byte-utils";
 
 module {
 
     type Iter<A> = Iter.Iter<A>;
-    type Buffer<A> = Buffer.Buffer<A>;
+    type List<A> = List.List<A>;
     type Result<A, B> = Result.Result<A, B>;
-
-    public func create_map<K, V>(map_size : Nat) : Map.Map<K, V> = [
-        var ?(
-            VarArray.repeat(null, map_size),
-            VarArray.repeat(null, map_size),
-            VarArray.repeat(MapConst.NULL, map_size * 2),
-            VarArray.repeat(0 : Nat32, 3),
-        )
-    ];
 
     /// Function copied from mo:candid/Tag: https://github.com/edjCase/motoko_candid/blob/d038b7bd953fb8826ae66a5f34bf06dcc29b2e0f/src/Tag.mo#L14-L30
     ///
@@ -269,6 +257,58 @@ module {
                         null;
                     };
                 };
+            };
+        };
+    };
+
+    /// Wrapper class that provides a Buffer-like interface around mo:core/List
+    public class ListBuffer<A>() {
+        let list = List.empty<A>();
+
+        public func size() : Nat = List.size(list);
+
+        public func add(elem : A) = List.add(list, elem);
+
+        public func clear() = List.clear(list);
+
+        public func get(i : Nat) : A {
+            switch (List.get(list, i)) {
+                case (?elem) elem;
+                case (null) Runtime.trap "Index out of bounds";
+            };
+        };
+
+        public func put(i : Nat, elem : A) = List.put(list, i, elem);
+
+        public func vals() : Iter.Iter<A> = List.values(list);
+
+        public func toArray() : [A] = List.toArray(list);
+
+        public func removeLast() : ?A = List.removeLast(list);
+    };
+
+    /// Buffer module that provides a compatible API with mo:base/Buffer but uses mo:core/List
+    public module Buffer {
+        public type Buffer<A> = ListBuffer<A>;
+
+        public func Buffer<A>(initCapacity : Nat) : ListBuffer<A> = ListBuffer<A>();
+
+        public func toArray<A>(buffer : ListBuffer<A>) : [A] = buffer.toArray();
+
+        public func fromArray<A>(arr : [A]) : ListBuffer<A> {
+            let buf = ListBuffer<A>();
+            for (elem in arr.vals()) {
+                buf.add(elem);
+            };
+            buf;
+        };
+
+        public func last<A>(buffer : ListBuffer<A>) : ?A {
+            let s = buffer.size();
+            if (s == 0) {
+                null;
+            } else {
+                ?buffer.get(s - 1);
             };
         };
     };

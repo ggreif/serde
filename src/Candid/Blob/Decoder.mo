@@ -1,27 +1,26 @@
-import Array "mo:core@2.4/Array";
-import Blob "mo:core@2.4/Blob";
-import Buffer "mo:base@0.16/Buffer";
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
-import Result "mo:core@2.4/Result";
-import Nat64 "mo:core@2.4/Nat64";
-import Int8 "mo:core@2.4/Int8";
-import Int32 "mo:core@2.4/Int32";
-import Nat8 "mo:core@2.4/Nat8";
-import Nat32 "mo:core@2.4/Nat32";
-import Int64 "mo:core@2.4/Int64";
-import Nat "mo:core@2.4/Nat";
-import Int "mo:core@2.4/Int";
-import Iter "mo:core@2.4/Iter";
-import Principal "mo:core@2.4/Principal";
-import Text "mo:core@2.4/Text";
-import Order "mo:core@2.4/Order";
-import Int16 "mo:core@2.4/Int16";
-import Option "mo:core@2.4/Option";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import Result "mo:core/Result";
+import Nat64 "mo:core/Nat64";
+import Int8 "mo:core/Int8";
+import Int32 "mo:core/Int32";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Int64 "mo:core/Int64";
+import Nat "mo:core/Nat";
+import Int "mo:core/Int";
+import Iter "mo:core/Iter";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Order "mo:core/Order";
+import Int16 "mo:core/Int16";
+import Option "mo:core/Option";
 
-import Map "mo:map@9.0/Map";
-import Set "mo:map@9.0/Set";
-import ByteUtils "mo:byte-utils@0.2";
+import PureMap "mo:core/pure/Map";
+import PureSet "mo:core/pure/Set";
+import ByteUtils "mo:byte-utils";
 
 import T "../Types";
 import Utils "../../Utils";
@@ -33,17 +32,14 @@ module {
     type Candid = T.Candid;
     type KeyValuePair = T.KeyValuePair;
 
-    type Buffer<A> = Buffer.Buffer<A>;
+    type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Hash = Nat32;
-    type Map<K, V> = Map.Map<K, V>;
-    type Set<A> = Set.Set<A>;
+    type Map<K, V> = PureMap.Map<K, V>;
+    type Set<A> = PureSet.Set<A>;
     type Order = Order.Order;
 
     type CandidType = T.CandidType;
     type ShallowCandidTypes = T.ShallowCandidTypes;
-
-    let { nhash } = Set;
-    let { n32hash; thash } = Map;
 
     /// Decodes a blob encoded in the candid format into a list of the [Candid](./Types.mo#Candid) type in motoko
     ///
@@ -134,13 +130,13 @@ module {
 
     public func one_shot(blob : Blob, record_keys : [Text], options : ?T.Options) : Result<[Candid], Text> {
 
-        let record_key_map = Map.new<Nat32, Text>();
+        var record_key_map = PureMap.empty<Nat32, Text>();
 
         var i = 0;
         while (i < record_keys.size()) {
             let key = formatVariantKey(record_keys[i]);
             let hash = Utils.hash_record_key(key);
-            ignore Map.put(record_key_map, n32hash, hash, key);
+            record_key_map := PureMap.add(record_key_map, Nat32.compare, hash, key);
             i += 1;
         };
 
@@ -153,7 +149,7 @@ module {
                 let new_key = formatVariantKey(key_pairs_to_rename[i].1);
 
                 let hash = Utils.hash_record_key(original_key);
-                // ignore Map.put(record_key_map, n32hash, hash, new_key);
+                // record_key_map := PureMap.add(record_key_map, Nat32.compare, hash, new_key);
 
                 i += 1;
             };
@@ -315,7 +311,7 @@ module {
                     size,
                     func(i : Nat) : (Text, Nat) {
                         let hash = decode_leb128(bytes, state) |> Nat32.fromNat(_);
-                        let field_key = switch (Map.get(record_key_map, n32hash, hash)) {
+                        let field_key = switch (PureMap.get(record_key_map, Nat32.compare, hash)) {
                             case (?field_key) field_key;
                             case (null) debug_show hash;
                         };
@@ -347,47 +343,44 @@ module {
         Array.tabulate(total_compound_types, extract_compound_type);
     };
 
-    func build_compound_type(compound_types : [ShallowCandidTypes], start_pos : Nat, recursive_types_map : Map<Nat, CandidType>) : CandidType {
-        func _build_compound_type(compound_types : [ShallowCandidTypes], start_pos : Nat, visited : Set<Nat>, is_recursive_set : Set<Nat>, recursive_types_map : Map<Nat, CandidType>) : CandidType {
+    func build_compound_type(compound_types : [ShallowCandidTypes], start_pos : Nat, recursive_types_map_param : Map<Nat, CandidType>) : (CandidType, Map<Nat, CandidType>) {
+        var recursive_types_map = recursive_types_map_param;
+        var visited = PureSet.empty<Nat>();
+        var is_recursive_set = PureSet.empty<Nat>();
+
+        func _build_compound_type(compound_types : [ShallowCandidTypes], start_pos : Nat) : CandidType {
             var pos = start_pos;
 
             func resolve_field_types((field_key, ref_pos) : (Text, Nat)) : ((Text, CandidType)) {
-                let visited_size = Set.size(visited);
+                let saved_visited = visited;
                 let resolved_type : CandidType = if (is_code_primitive_type(Nat8.fromNat(ref_pos))) {
                     code_to_primitive_type(Nat8.fromNat(ref_pos));
                 } else {
-                    _build_compound_type(compound_types, ref_pos, visited, is_recursive_set, recursive_types_map);
+                    _build_compound_type(compound_types, ref_pos);
                 };
-
-                while (Set.size(visited) > visited_size) {
-                    ignore Set.pop(visited, nhash);
-                };
+                visited := saved_visited;
 
                 (field_key, resolved_type);
             };
 
-            switch (Map.get(recursive_types_map, nhash, pos)) {
+            switch (PureMap.get(recursive_types_map, Nat.compare, pos)) {
                 case (?candid_type) return candid_type;
                 case (null) {};
             };
 
-            if (Set.has(is_recursive_set, nhash, pos)) {
+            if (PureSet.contains(visited, Nat.compare, pos) and not PureSet.contains(is_recursive_set, Nat.compare, pos)) {
+                is_recursive_set := PureSet.add(is_recursive_set, Nat.compare, pos);
                 return #Recursive(pos);
             };
 
-            if (Set.has(visited, nhash, pos)) {
-                ignore Set.put(is_recursive_set, nhash, pos);
-                return #Recursive(pos);
-            };
-
-            ignore Set.put(visited, nhash, pos);
+            visited := PureSet.add(visited, Nat.compare, pos);
 
             let resolved_compound_type = switch (compound_types.get(pos)) {
                 case (#OptionRef(ref_pos)) {
                     let ref_type = if (is_code_primitive_type(Nat8.fromNat(ref_pos))) {
                         code_to_primitive_type(Nat8.fromNat(ref_pos));
                     } else {
-                        _build_compound_type(compound_types, ref_pos, visited, is_recursive_set, recursive_types_map);
+                        _build_compound_type(compound_types, ref_pos);
                     };
 
                     #Option(ref_type);
@@ -396,7 +389,7 @@ module {
                     let ref_type = if (is_code_primitive_type(Nat8.fromNat(ref_pos))) {
                         code_to_primitive_type(Nat8.fromNat(ref_pos));
                     } else {
-                        _build_compound_type(compound_types, ref_pos, visited, is_recursive_set, recursive_types_map);
+                        _build_compound_type(compound_types, ref_pos);
                     };
                     #Array(ref_type);
                 };
@@ -410,21 +403,20 @@ module {
                 };
             };
 
-            if (Set.has(is_recursive_set, nhash, pos) and not Map.has(recursive_types_map, nhash, pos)) {
-                ignore Map.put(recursive_types_map, nhash, pos, resolved_compound_type);
+            if (PureSet.contains(is_recursive_set, Nat.compare, pos) and not PureMap.containsKey(recursive_types_map, Nat.compare, pos)) {
+                recursive_types_map := PureMap.add(recursive_types_map, Nat.compare, pos, resolved_compound_type);
             };
 
             resolved_compound_type;
         };
 
-        let visited = Set.new<Nat>();
-        let is_recursive_set = Set.new<Nat>();
-
-        _build_compound_type(compound_types, start_pos, visited, is_recursive_set, recursive_types_map);
+        let result_type = _build_compound_type(compound_types, start_pos);
+        (result_type, recursive_types_map);
     };
 
-    public func build_types(bytes : Blob, state : [var Nat], compound_types : [ShallowCandidTypes], recursive_types_map : Map<Nat, CandidType>) : [CandidType] {
+    public func build_types(bytes : Blob, state : [var Nat], compound_types : [ShallowCandidTypes], recursive_types_map_param : Map<Nat, CandidType>) : ([CandidType], Map<Nat, CandidType>) {
         let total_candid_types = decode_leb128(bytes, state);
+        var recursive_types_map = recursive_types_map_param;
 
         let candid_types = Array.tabulate(
             total_candid_types,
@@ -436,7 +428,8 @@ module {
                     primitive_type;
                 } else {
                     let start_pos = decode_leb128(bytes, state);
-                    let compound_type = build_compound_type(compound_types, start_pos, recursive_types_map);
+                    let (compound_type, updated_map) = build_compound_type(compound_types, start_pos, recursive_types_map);
+                    recursive_types_map := updated_map;
                     compound_type;
                 };
 
@@ -445,7 +438,7 @@ module {
             },
         );
 
-        (candid_types);
+        (candid_types, recursive_types_map);
     };
 
     public func skip_compound_types(bytes : Blob, state : [var Nat], total_compound_types : Nat) {
@@ -511,6 +504,7 @@ module {
 
     public func one_shot_decode(candid_blob : Blob, record_key_map : Map<Nat32, Text>, options : T.Options) : Result<[Candid], Text> {
         let bytes = candid_blob;
+        // let stream = BitBuffer.fromArray(bytes);
 
         let is_types_set = Option.isSome(options.types);
 
@@ -524,13 +518,15 @@ module {
             return #err("Invalid Magic Number");
         };
 
-        let recursive_types_map = Map.new<Nat, CandidType>();
+        var recursive_types_map = PureMap.empty<Nat, CandidType>();
 
         if (not is_types_set) {
             // extract types from blob
             let total_compound_types = decode_leb128(bytes, state);
             let compound_types = extract_compound_types(bytes, state, total_compound_types, record_key_map);
-            candid_types := build_types(bytes, state, compound_types, recursive_types_map);
+            let (types, updated_recursive_map) = build_types(bytes, state, compound_types, recursive_types_map);
+            candid_types := types;
+            recursive_types_map := updated_recursive_map;
 
         } else {
             // types are set but 'blob_contains_only_values' is not set,
@@ -541,9 +537,7 @@ module {
 
         };
 
-        // Debug.print("candid_types: " # debug_show(candid_types));
-
-        let renaming_map = Map.fromIter<Text, Text>(options.renameKeys.vals(), Map.thash);
+        let renaming_map = PureMap.fromIter<Text, Text>(options.renameKeys.vals(), Text.compare);
 
         // extract values with Candid variant Types
         decode_candid_values(bytes, candid_types, state, options, renaming_map, recursive_types_map);
@@ -898,7 +892,7 @@ module {
                 #Variant(get_renamed_key(renaming_map, variant_key), value);
             };
             case (#Recursive(pos)) {
-                let recursive_type = switch (Map.get(recursive_map, nhash, pos)) {
+                let recursive_type = switch (PureMap.get(recursive_map, Nat.compare, pos)) {
                     case (?recursive_type) recursive_type;
                     case (_) Runtime.trap("Recursive type not found");
                 };
@@ -909,14 +903,12 @@ module {
             case (val) Runtime.trap(debug_show (val) # " decoding is not supported");
         };
 
-        // Debug.print("value: " # debug_show(value));
-
         #ok(value);
     };
 
     func get_renamed_key(renaming_map : Map<Text, Text>, key : Text) : Text {
         Option.get(
-            Map.get(renaming_map, Map.thash, key),
+            PureMap.get(renaming_map, Text.compare, key),
             key,
         );
     };
@@ -928,5 +920,11 @@ module {
             case (null) key;
         };
     };
+
+    // TODO: Performance optimization - Replace Map<Nat, CandidType> with List<(Nat, CandidType)> for recursive_types_map
+    // DeBruijn indices are typically small (0-5 for nesting depth), making linear list scan O(n) much faster
+    // than Map operations O(log n) + immutable map copying overhead. Building new maps is costly, while
+    // cons-ing onto a linked list is O(1). For typical recursive type depths, list lookup will outperform
+    // tree-based map lookup by a significant margin.
 
 };

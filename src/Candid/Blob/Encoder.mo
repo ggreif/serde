@@ -1,31 +1,31 @@
-import Array "mo:core@2.4/Array";
-import Blob "mo:core@2.4/Blob";
-import Buffer "mo:base@0.16/Buffer";
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
-import Result "mo:core@2.4/Result";
-import Nat64 "mo:core@2.4/Nat64";
-import Int8 "mo:core@2.4/Int8";
-import Int32 "mo:core@2.4/Int32";
-import Nat8 "mo:core@2.4/Nat8";
-import Nat32 "mo:core@2.4/Nat32";
-import Nat16 "mo:core@2.4/Nat16";
-import Int64 "mo:core@2.4/Int64";
-import Nat "mo:core@2.4/Nat";
-import Int "mo:core@2.4/Int";
-import Iter "mo:core@2.4/Iter";
-import Principal "mo:core@2.4/Principal";
-import Text "mo:core@2.4/Text";
-import Order "mo:core@2.4/Order";
-import Option "mo:core@2.4/Option";
-import Func "mo:core@2.4/Func";
-import Char "mo:core@2.4/Char";
-import Int16 "mo:core@2.4/Int16";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import Result "mo:core/Result";
+import Nat64 "mo:core/Nat64";
+import Int8 "mo:core/Int8";
+import Int32 "mo:core/Int32";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Nat16 "mo:core/Nat16";
+import Int64 "mo:core/Int64";
+import Nat "mo:core/Nat";
+import Int "mo:core/Int";
+import Iter "mo:core/Iter";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Order "mo:core/Order";
+import Option "mo:core/Option";
+import Func "mo:core/Func";
+import Char "mo:core/Char";
+import Int16 "mo:core/Int16";
 
 import Itertools "mo:itertools@0.2.2/Iter";
 import PeekableIter "mo:itertools@0.2.2/PeekableIter";
-import Map "mo:map@9.0/Map";
-import ByteUtils "mo:byte-utils@0.2";
+import PureMap "mo:core/pure/Map";
+import Map "mo:core/Map";
+import ByteUtils "mo:byte-utils";
 
 import T "../Types";
 import Utils "../../Utils";
@@ -33,20 +33,20 @@ import CandidUtils "CandidUtils";
 
 module {
     type Result<A, B> = Result.Result<A, B>;
-    type Buffer<A> = Buffer.Buffer<A>;
+    type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Iter<A> = Iter.Iter<A>;
     type Hash = Nat32;
+    type PureMapType<K, V> = PureMap.Map<K, V>;
     type Map<K, V> = Map.Map<K, V>;
     type Order = Order.Order;
 
     type Candid = T.Candid;
     type CandidType = T.CandidType;
     type KeyValuePair = T.KeyValuePair;
-    let { thash } = Map;
-    let { unsigned_leb128; signed_leb128_64 } = Utils;
+    let { unsigned_leb128; signed_leb128_64; Buffer } = Utils;
 
     // public func encode(candid_values : [Candid], options : ?T.Options) : Result<Blob, Text> {
-    //   let renaming_map = Map.new<Text, Text>();
+    //   let renaming_map = PureMap.empty<Text, Text>();
     //   for ((k, v) in Option.get(options, T.defaultOptions).renameKeys.vals()) {
     //     ignore Map.put(renaming_map, thash, k, v);
     //   };
@@ -68,7 +68,7 @@ module {
         encode([candid], options);
     };
 
-    func infer_candid_types(candid_values : [Candid], renaming_map : Map<Text, Text>) : Result<[CandidType], Text> {
+    func infer_candid_types(candid_values : [Candid], renaming_map : PureMapType<Text, Text>) : Result<[CandidType], Text> {
         let buffer = Buffer.Buffer<CandidType>(candid_values.size());
 
         for (candid in candid_values.vals()) {
@@ -106,8 +106,6 @@ module {
 
     public func one_shot(candid_values : [Candid], _options : ?T.Options) : Result<Blob, Text> {
 
-        let renaming_map = Map.new<Text, Text>();
-
         let compound_type_buffer = Buffer.Buffer<Nat8>(200);
         let candid_type_buffer = Buffer.Buffer<Nat8>(200);
         let value_buffer = Buffer.Buffer<Nat8>(400);
@@ -116,8 +114,9 @@ module {
 
         let options = Option.get(_options, T.defaultOptions);
 
+        var renaming_map = PureMap.empty<Text, Text>();
         for ((k, v) in options.renameKeys.vals()) {
-            ignore Map.put(renaming_map, thash, k, v);
+            renaming_map := PureMap.add(renaming_map, Text.compare, k, v);
         };
 
         var candid_types : [CandidType] = switch (options.types) {
@@ -164,6 +163,10 @@ module {
             value_buffer,
         ];
 
+        // Print each buffer in the sequence as a Blob
+        // for (buf in sequence.vals()) {
+        //   Debug.print(debug_show Blob.fromArray(Buffer.toArray(buf)));
+        // };
 
         var i = 0;
         var j = 0;
@@ -232,15 +235,15 @@ module {
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
         counter : [var Nat],
-        renaming_map : Map<Text, Text>,
+        renaming_map : PureMapType<Text, Text>,
     ) {
         assert candid_values.size() == candid_types.size();
 
         // include size of candid values
         // unsigned_leb128(type_buffer, candid_values.size());
 
-        let unique_compound_type_map = Map.new<Text, Nat>();
-        let recursive_map = Map.new<Text, Text>();
+        let unique_compound_type_map = Map.empty<Text, Nat>();
+        let recursive_map = PureMap.empty<Text, Text>();
 
         var i = 0;
 
@@ -270,9 +273,9 @@ module {
         candid_type : CandidType,
         candid_value : Candid,
         value_buffer : Buffer<Nat8>,
-        renaming_map : Map<Text, Text>,
+        renaming_map : PureMapType<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : Map<Text, Text>,
+        recursive_map : PureMapType<Text, Text>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
     ) : ?Hash {
@@ -284,7 +287,7 @@ module {
         if (candid_is_compound_type) {
             switch (candid_type, candid_value) {
                 case (#Option(opt_type), #Option(opt_value)) {
-                    if (opt_value == #Null) {
+                    if (opt_value == #Null and opt_type != #Null) {
                         value_buffer.add(0); // no value
                     } else {
                         value_buffer.add(1); // has value
@@ -366,18 +369,18 @@ module {
                 };
                 case (#Record(record_types) or #Map(record_types), #Record(record_entries) or #Map(record_entries)) {
 
-                    let record_entry_cache : Map.Map<Text, Candid> = Utils.create_map<Text, Candid>(record_entries.size());
+                    var record_entry_cache = PureMap.empty<Text, Candid>();
 
                     for ((k, v) in record_entries.vals()) {
                         let field_value_key = get_renamed_key(renaming_map, k);
-                        ignore Map.put(record_entry_cache, thash, field_value_key, v);
+                        record_entry_cache := PureMap.add(record_entry_cache, Text.compare, field_value_key, v);
                     };
 
                     var i = 0;
                     while (i < record_types.size()) {
                         let field_type = record_types[i].1;
                         let field_type_key = get_renamed_key(renaming_map, record_types[i].0);
-                        let field_value = switch (Map.get(record_entry_cache, Map.thash, field_type_key)) {
+                        let field_value = switch (PureMap.get(record_entry_cache, Text.compare, field_type_key)) {
                             case (?field_value) {
                                 // If field type is optional but value isn't, wrap it
                                 switch (field_type, field_value) {
@@ -395,7 +398,7 @@ module {
                                 // Field is missing - if the type is optional, use #Null
                                 switch (field_type) {
                                     case (#Option(_)) #Null;
-                                    case (_) Runtime.trap("encode_value_only() error: unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
+                                    case (_) Runtime.trap("unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
                                 };
                             };
                         };
@@ -526,7 +529,10 @@ module {
                     ByteUtils.Buffer.LE.addInt64(value_buffer, i64);
                 };
                 case (#Float, #Float(f64)) {
-                    ByteUtils.Buffer.LE.addFloat(value_buffer, f64);
+                    let bytes = ByteUtils.LE.fromFloat(f64);
+                    for (byte in bytes.vals()) {
+                        value_buffer.add(byte);
+                    };
                 };
                 case (#Bool, #Bool(b)) {
                     value_buffer.add(if (b) (1) else (0));
@@ -605,13 +611,13 @@ module {
         candid_type : CandidType,
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
-        renaming_map : Map<Text, Text>,
+        renaming_map : PureMapType<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
     ) {
         let type_info = get_type_info(candid_type);
-        let compound_type_exists = Map.has(unique_compound_type_map, thash, type_info);
+        let compound_type_exists = Map.containsKey(unique_compound_type_map, Text.compare, type_info);
         if (compound_type_exists) return;
         // Debug.print("encode_compound_type_only(): " # debug_show type_info);
         switch (candid_type) {
@@ -635,7 +641,7 @@ module {
                 if (opt_type_is_compound) {
                     compound_type_buffer.add(T.TypeCode.Option);
                     let opt_type_info = get_type_info(opt_type);
-                    let pos = switch (Map.get(unique_compound_type_map, thash, opt_type_info)) {
+                    let pos = switch (Map.get(unique_compound_type_map, Text.compare, opt_type_info)) {
                         case (?pos) pos;
                         case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
                     };
@@ -663,7 +669,7 @@ module {
                 if (arr_type_is_compound) {
                     compound_type_buffer.add(T.TypeCode.Array);
                     let arr_type_info = get_type_info(arr_type);
-                    let pos = switch (Map.get(unique_compound_type_map, thash, arr_type_info)) {
+                    let pos = switch (Map.get(unique_compound_type_map, Text.compare, arr_type_info)) {
                         case (?pos) pos;
                         case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
                     };
@@ -723,7 +729,7 @@ module {
 
                     if (value_type_is_compound) {
                         let value_type_info = get_type_info(field_type);
-                        let pos = switch (Map.get(unique_compound_type_map, thash, value_type_info)) {
+                        let pos = switch (Map.get(unique_compound_type_map, Text.compare, value_type_info)) {
                             case (?pos) pos;
                             case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
                         };
@@ -790,7 +796,7 @@ module {
 
                     if (variant_type_is_compound) {
                         let variant_type_info = get_type_info(variant_type);
-                        let pos = switch (Map.get(unique_compound_type_map, thash, variant_type_info)) {
+                        let pos = switch (Map.get(unique_compound_type_map, Text.compare, variant_type_info)) {
                             case (?pos) pos;
                             case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
                         };
@@ -811,7 +817,7 @@ module {
             case (_) Runtime.trap("encode_compound_type_only(): unknown compound type " # debug_show candid_type);
         };
 
-        ignore Map.put(unique_compound_type_map, thash, type_info, counter[C.COUNTER.COMPOUND_TYPE]);
+        Map.add(unique_compound_type_map, Text.compare, type_info, counter[C.COUNTER.COMPOUND_TYPE]);
         counter[C.COUNTER.COMPOUND_TYPE] += 1;
 
     };
@@ -820,7 +826,7 @@ module {
         candid_type : CandidType,
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
-        renaming_map : Map<Text, Text>,
+        renaming_map : PureMapType<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
@@ -839,7 +845,7 @@ module {
             // Add compound type reference to primitive type buffer for top-level types
             if (not is_nested_child_of_compound_type) {
                 let type_info = get_type_info(candid_type);
-                let pos = switch (Map.get(unique_compound_type_map, thash, type_info)) {
+                let pos = switch (Map.get(unique_compound_type_map, Text.compare, type_info)) {
                     case (?pos) pos;
                     case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
                 };
@@ -871,9 +877,9 @@ module {
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
-        renaming_map : Map<Text, Text>,
+        renaming_map : PureMapType<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : Map<Text, Text>,
+        recursive_map : PureMapType<Text, Text>,
         is_nested_child_of_compound_type : Bool,
         ignore_type : Bool,
     ) {
@@ -889,7 +895,9 @@ module {
 
         switch (candid_type, candid_value) {
             case (#Nat, #Nat(n)) {
+                // Debug.print("start encoding Nat: " # debug_show n);
                 ref_candid_type_buffer.add(T.TypeCode.Nat);
+                // Debug.print("encoded type codde");
                 unsigned_leb128(value_buffer, n);
 
             };
@@ -931,7 +939,10 @@ module {
             };
             case (#Float, #Float(f64)) {
                 ref_candid_type_buffer.add(T.TypeCode.Float);
-                ByteUtils.Buffer.LE.addFloat(value_buffer, f64);
+                let bytes = ByteUtils.LE.fromFloat(f64);
+                for (byte in bytes.vals()) {
+                    value_buffer.add(byte);
+                };
             };
             case (#Bool, #Bool(b)) {
                 ref_candid_type_buffer.add(T.TypeCode.Bool);
@@ -979,9 +990,9 @@ module {
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
-        renaming_map : Map<Text, Text>,
+        renaming_map : PureMapType<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : Map<Text, Text>,
+        recursive_map : PureMapType<Text, Text>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
         _type_exists : Bool,
@@ -999,7 +1010,7 @@ module {
         let type_info = get_type_info(candid_type);
 
         // type_exists_in_compound_type_sequence
-        let type_exists = _type_exists or Map.has(unique_compound_type_map, thash, type_info);
+        let type_exists = _type_exists or Map.containsKey(unique_compound_type_map, Text.compare, type_info);
 
         switch (candid_type, candid_value) {
 
@@ -1011,10 +1022,9 @@ module {
                     compound_type_buffer.add(T.TypeCode.Option);
                 };
 
-                if (opt_value == #Null) {
-                    // #Option(#Null) encodes as absent, regardless of the inner type.
-                    // This handles both explicit #Option(#Null) and inferred types where
-                    // the resolved type may differ (e.g. #Option(#Array(...)) from other elements).
+                if (opt_value == #Null and opt_type != #Null) {
+                    // a result of being able to set #Null at any point in an #Option type
+                    // for instance, type #Option(#Nat) with value #Null
 
                     value_buffer.add(0); // no value
 
@@ -1052,7 +1062,7 @@ module {
                     // let prev_start = get_prev_compound_type_start_index(compound_type_buffer);
                     compound_type_buffer.add(T.TypeCode.Option);
                     let opt_type_info = get_type_info(opt_type);
-                    let pos = switch (Map.get(unique_compound_type_map, thash, opt_type_info)) {
+                    let pos = switch (Map.get(unique_compound_type_map, Text.compare, opt_type_info)) {
                         case (?pos) pos;
                         case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
                     };
@@ -1086,7 +1096,7 @@ module {
                 ) {
                     compound_type_buffer.add(T.TypeCode.Option);
                     let opt_type_info = get_type_info(opt_type);
-                    let pos = switch (Map.get(unique_compound_type_map, thash, opt_type_info)) {
+                    let pos = switch (Map.get(unique_compound_type_map, Text.compare, opt_type_info)) {
                         case (?pos) pos;
                         case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info, opt_type));
                     };
@@ -1142,7 +1152,7 @@ module {
                     compound_type_buffer.add(T.TypeCode.Array);
 
                     let arr_type_info = get_type_info(arr_type);
-                    let pos = switch (Map.get(unique_compound_type_map, thash, arr_type_info)) {
+                    let pos = switch (Map.get(unique_compound_type_map, Text.compare, arr_type_info)) {
                         case (?pos) pos;
                         case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info, arr_type));
                     };
@@ -1219,11 +1229,11 @@ module {
                     record_entries.size() + 3;
                 };
 
-                let record_entry_cache : Map.Map<Text, Candid> = Utils.create_map<Text, Candid>(cache_size);
+                var record_entry_cache = PureMap.empty<Text, Candid>();
 
                 for ((k, v) in record_entries.vals()) {
                     let field_value_key = get_renamed_key(renaming_map, k);
-                    ignore Map.put(record_entry_cache, thash, field_value_key, v);
+                    record_entry_cache := PureMap.add(record_entry_cache, Text.compare, field_value_key, v);
                 };
 
                 var i = 0;
@@ -1232,7 +1242,7 @@ module {
 
                     let field_type_key = get_renamed_key(renaming_map, record_types[i].0);
 
-                    let field_value = switch (Map.get(record_entry_cache, Map.thash, field_type_key)) {
+                    let field_value = switch (PureMap.get(record_entry_cache, Text.compare, field_type_key)) {
                         case (?field_value) {
                             // If field type is optional but value isn't, wrap it
                             switch (field_type, field_value) {
@@ -1250,7 +1260,7 @@ module {
                             // Field is missing - if the type is optional, use #Null
                             switch (field_type) {
                                 case (#Option(_)) #Null;
-                                case (_) Runtime.trap("encode_compound_type() error: unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
+                                case (_) Runtime.trap("unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
                             };
                         };
                     };
@@ -1295,7 +1305,7 @@ module {
 
                         if (value_type_is_compound) {
                             let value_type_info = get_type_info(field_type);
-                            let pos = switch (Map.get(unique_compound_type_map, thash, value_type_info)) {
+                            let pos = switch (Map.get(unique_compound_type_map, Text.compare, value_type_info)) {
                                 case (?pos) pos;
                                 case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info, field_type));
                             };
@@ -1448,7 +1458,7 @@ module {
 
                         if (variant_type_is_compound) {
                             let variant_type_info = get_type_info(variant_type);
-                            let pos = switch (Map.get(unique_compound_type_map, thash, variant_type_info)) {
+                            let pos = switch (Map.get(unique_compound_type_map, Text.compare, variant_type_info)) {
                                 case (?pos) pos;
                                 case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
                             };
@@ -1475,12 +1485,12 @@ module {
             var pos = counter[C.COUNTER.COMPOUND_TYPE];
             counter[C.COUNTER.COMPOUND_TYPE] += 1;
 
-            ignore Map.put(unique_compound_type_map, thash, type_info, pos);
+            Map.add(unique_compound_type_map, Text.compare, type_info, pos);
         };
 
         // if it is the top level parent and not one of the nested children
         if (not is_nested_child_of_compound_type) {
-            let pos = switch (Map.get(unique_compound_type_map, thash, type_info)) {
+            let pos = switch (Map.get(unique_compound_type_map, Text.compare, type_info)) {
                 case (?pos) pos;
                 case (_) Runtime.trap("unable to find compound type pos to store in primitive type sequence for " # debug_show (type_info));
             };
@@ -1494,9 +1504,9 @@ module {
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
-        renaming_map : Map<Text, Text>,
+        renaming_map : PureMapType<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : Map<Text, Text>,
+        recursive_map : PureMapType<Text, Text>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
         ignore_type : Bool,
@@ -1578,7 +1588,7 @@ module {
         key : ?Text;
     };
 
-    func to_candid_types(candid : Candid, renaming_map : Map<Text, Text>) : (InternalCandidTypes) {
+    func to_candid_types(candid : Candid, renaming_map : PureMapType<Text, Text>) : (InternalCandidTypes) {
         switch (candid) {
             case (#Nat(_)) (#Nat);
             case (#Nat8(_)) (#Nat8);
@@ -1784,7 +1794,7 @@ module {
 
                         // If we have multiple records, merge their fields
                         let merged_type = if (has_records and all_records.size() > 1) {
-                            let field_map = Map.new<Text, (CandidType, Nat, Nat)>(); // key -> (type, height, count)
+                            var field_map = PureMap.empty<Text, (CandidType, Nat, Nat)>(); // key -> (type, height, count)
                             var max_height = 0;
 
                             for (record_fields in all_records.vals()) {
@@ -1792,29 +1802,29 @@ module {
                                     let field_depth = get_type_depth(field_type);
                                     max_height := Nat.max(max_height, field_depth);
 
-                                    switch (Map.get(field_map, thash, field_key)) {
+                                    switch (PureMap.get(field_map, Text.compare, field_key)) {
                                         case (?existing) {
                                             let (existing_type, existing_height, count) = existing;
 
                                             // Choose better type
                                             if (is_better_type(field_type, field_depth, existing_type, existing_height)) {
-                                                ignore Map.put(field_map, thash, field_key, (field_type, field_depth, count + 1));
+                                                field_map := PureMap.add(field_map, Text.compare, field_key, (field_type, field_depth, count + 1));
                                             } else {
-                                                ignore Map.put(field_map, thash, field_key, (existing_type, existing_height, count + 1));
+                                                field_map := PureMap.add(field_map, Text.compare, field_key, (existing_type, existing_height, count + 1));
                                             };
                                         };
                                         case (null) {
-                                            ignore Map.put(field_map, thash, field_key, (field_type, field_depth, 1));
+                                            field_map := PureMap.add(field_map, Text.compare, field_key, (field_type, field_depth, 1));
                                         };
                                     };
                                 };
                             };
 
                             // Build merged record type, wrapping optional fields
-                            let merged_fields = Buffer.Buffer<(Text, CandidType)>(Map.size(field_map));
+                            let merged_fields = Buffer.Buffer<(Text, CandidType)>(PureMap.size(field_map));
                             let total_records = all_records.size();
 
-                            for ((field_key, (field_type, field_height, count)) in Map.entries(field_map)) {
+                            for ((field_key, (field_type, field_height, count)) in PureMap.entries(field_map)) {
                                 // If field doesn't appear in all records, make it optional
                                 let final_type = if (count < total_records) {
                                     switch (field_type) {
@@ -1942,28 +1952,28 @@ module {
             if (variants.size() > 0) {
                 // Merge variant types with the same key, choosing the better (more specific) type
                 let merged_variants = Buffer.Buffer<(Text, CandidType)>(variants.size());
-                let variant_map = Map.new<Text, (CandidType, Nat)>(); // key -> (type, height)
+                var variant_map = PureMap.empty<Text, (CandidType, Nat)>(); // key -> (type, height)
 
                 for ((key, variant_type) in variants.vals()) {
-                    switch (Map.get(variant_map, thash, key)) {
+                    switch (PureMap.get(variant_map, Text.compare, key)) {
                         case (?existing) {
                             let (existing_type, existing_height) = existing;
                             let variant_depth = get_type_depth(variant_type);
 
                             // Choose the better type
                             if (is_better_type(variant_type, variant_depth, existing_type, existing_height)) {
-                                ignore Map.put(variant_map, thash, key, (variant_type, variant_depth));
+                                variant_map := PureMap.add(variant_map, Text.compare, key, (variant_type, variant_depth));
                             };
                         };
                         case (null) {
                             let variant_depth = get_type_depth(variant_type);
-                            ignore Map.put(variant_map, thash, key, (variant_type, variant_depth));
+                            variant_map := PureMap.add(variant_map, Text.compare, key, (variant_type, variant_depth));
                         };
                     };
                 };
 
                 // Convert map back to array
-                for ((key, (variant_type, _)) in Map.entries(variant_map)) {
+                for ((key, (variant_type, _)) in PureMap.entries(variant_map)) {
                     merged_variants.add((key, variant_type));
                 };
 
@@ -2108,7 +2118,7 @@ module {
     func order_candid_types_by_height_bfs(rows : Buffer<[InternalCandidTypeNode]>) {
 
         label while_loop while (rows.size() > 0) {
-            let candid_values = Buffer.last(rows) else return Runtime.unreachable();
+            let ?candid_values = Buffer.last(rows) else return Runtime.unreachable();
             let buffer = Buffer.Buffer<InternalCandidTypeNode>(8);
 
             var has_compound_type = false;
@@ -2181,8 +2191,8 @@ module {
         };
     };
 
-    func get_renamed_key(renaming_map : Map<Text, Text>, key : Text) : Text {
-        switch (Map.get(renaming_map, thash, key)) {
+    func get_renamed_key(renaming_map : PureMapType<Text, Text>, key : Text) : Text {
+        switch (PureMap.get(renaming_map, Text.compare, key)) {
             case (?v) v;
             case (_) key;
         };

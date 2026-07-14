@@ -1,13 +1,12 @@
-import Result "mo:core@2.4/Result";
-import Nat "mo:core@2.4/Nat";
-import Nat32 "mo:core@2.4/Nat32";
-import Text "mo:core@2.4/Text";
-import Buffer "mo:base/Buffer";
-import Map "mo:map@9.0/Map";
-import Float "mo:core@2.4/Float";
-import Principal "mo:core@2.4/Principal";
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
+import Result "mo:core/Result";
+import Nat "mo:core/Nat";
+import Nat32 "mo:core/Nat32";
+import Text "mo:core/Text";
+import Map "mo:core/Map";
+import Float "mo:core/Float";
+import Principal "mo:core/Principal";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
 
 import itertools "mo:itertools@0.2.2/Iter";
 
@@ -17,6 +16,7 @@ import Utils "../Utils";
 import CandidType "../Candid/Types";
 
 module {
+    let { Buffer } = Utils;
     type Candid = Candid.Candid;
     type Result<K, V> = Result.Result<K, V>;
 
@@ -44,7 +44,7 @@ module {
             case (_) return #err("invalid type: the value must be a record");
         };
 
-        let pairsMap = Map.new<Text, Text>();
+        let pairsMap = Map.empty<Text, Text>();
         let pairsOrder = Buffer.Buffer<Text>(16);
 
         for ((key, value) in records.vals()) {
@@ -54,7 +54,7 @@ module {
         var url_encoding = "";
 
         for (key in pairsOrder.vals()) {
-            let value = switch (Map.get(pairsMap, Map.thash, key)) {
+            let value = switch (Map.get(pairsMap, Text.compare, key)) {
                 case (?v) v;
                 case (null) "";
             };
@@ -77,10 +77,10 @@ module {
         skip_null_fields : Bool,
     ) {
         func set(key : Text, value : Text) {
-            if (Map.get(pairsMap, Map.thash, key) == null) {
+            if (Map.get(pairsMap, Text.compare, key) == null) {
                 pairsOrder.add(key);
             };
-            Map.set(pairsMap, Map.thash, key, value);
+            Map.add(pairsMap, Text.compare, key, value);
         };
         switch (candid) {
             case (#Array(arr)) {

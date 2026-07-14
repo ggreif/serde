@@ -1,30 +1,29 @@
-import Array "mo:core@2.4/Array";
-import Blob "mo:core@2.4/Blob";
-import Buffer "mo:base@0.16/Buffer";
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
-import Nat64 "mo:core@2.4/Nat64";
-import Int8 "mo:core@2.4/Int8";
-import Int32 "mo:core@2.4/Int32";
-import Nat8 "mo:core@2.4/Nat8";
-import Nat32 "mo:core@2.4/Nat32";
-import Nat16 "mo:core@2.4/Nat16";
-import Int64 "mo:core@2.4/Int64";
-import Nat "mo:core@2.4/Nat";
-import Principal "mo:core@2.4/Principal";
-import Text "mo:core@2.4/Text";
-import Int16 "mo:core@2.4/Int16";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import Nat64 "mo:core/Nat64";
+import Int8 "mo:core/Int8";
+import Int32 "mo:core/Int32";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Nat16 "mo:core/Nat16";
+import Int64 "mo:core/Int64";
+import Nat "mo:core/Nat";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Int16 "mo:core/Int16";
 
 import T "../Types";
 import Utils "../../Utils";
-import Sha256 "mo:sha2@0.1/Sha256";
+import Sha256 "mo:sha2@0.1.6/Sha256";
 
-import ByteUtils "mo:byte-utils@0.2";
+import ByteUtils "mo:byte-utils";
 
 module {
-    type Buffer<A> = Buffer.Buffer<A>;
+    type Buffer<A> = Utils.Buffer.Buffer<A>;
 
-    let { ReusableBuffer; unsigned_leb128; signed_leb128_64 } = Utils;
+    let { ReusableBuffer; unsigned_leb128; signed_leb128_64; Buffer } = Utils;
 
     public func hash(candid_value : T.Candid) : Blob {
         // let buffer = ReusableBuffer<Nat8>(100);
@@ -70,7 +69,10 @@ module {
             };
 
             case (#Float(f64)) {
-                ByteUtils.Buffer.LE.addFloat(buffer, f64);
+                let bytes = ByteUtils.LE.fromFloat(f64);
+                for (byte in bytes.vals()) {
+                    buffer.add(byte);
+                };
             };
             case (#Bool(b)) {
                 buffer.add(if (b) (1) else (0));
@@ -141,9 +143,9 @@ module {
                     hashes.add(concatenated);
                 };
 
-                hashes.sort(Blob.compare);
+                let sorted_hashes = Array.sort(hashes.toArray(), Blob.compare);
 
-                for (hash in hashes.vals()) {
+                for (hash in sorted_hashes.vals()) {
                     let hash_bytes = Blob.toArray(hash);
                     for (byte in hash_bytes.vals()) {
                         buffer.add(byte);
