@@ -21,9 +21,10 @@ import Sha256 "mo:sha2@0.1.6/Sha256";
 import ByteUtils "mo:byte-utils";
 
 module {
+    let { Buffer } = Utils;
     type Buffer<A> = Utils.Buffer.Buffer<A>;
 
-    let { ReusableBuffer; unsigned_leb128; signed_leb128_64; Buffer } = Utils;
+    let { ReusableBuffer; unsigned_leb128; signed_leb128_64 } = Utils;
 
     public func hash(candid_value : T.Candid) : Blob {
         // let buffer = ReusableBuffer<Nat8>(100);
@@ -69,10 +70,7 @@ module {
             };
 
             case (#Float(f64)) {
-                let bytes = ByteUtils.LE.fromFloat(f64);
-                for (byte in bytes.vals()) {
-                    buffer.add(byte);
-                };
+                ByteUtils.Buffer.LE.addFloat(buffer, f64);
             };
             case (#Bool(b)) {
                 buffer.add(if (b) (1) else (0));
@@ -113,7 +111,7 @@ module {
                     },
                 );
 
-                for (hash in hashes.vals()) {
+                for (hash in hashes.values()) {
                     let hash_bytes = Blob.toArray(hash);
                     for (byte in hash_bytes.vals()) {
                         buffer.add(byte);
@@ -143,9 +141,7 @@ module {
                     hashes.add(concatenated);
                 };
 
-                let sorted_hashes = Array.sort(hashes.toArray(), Blob.compare);
-
-                for (hash in sorted_hashes.vals()) {
+                for (hash in Array.sort(hashes.toArray(), Blob.compare).values()) {
                     let hash_bytes = Blob.toArray(hash);
                     for (byte in hash_bytes.vals()) {
                         buffer.add(byte);

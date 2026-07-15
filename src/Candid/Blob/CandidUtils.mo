@@ -7,18 +7,19 @@ import Text "mo:core/Text";
 import Order "mo:core/Order";
 
 import Itertools "mo:itertools@0.2.2/Iter";
-import PureMap "mo:core/pure/Map";
+import Map "mo:core/Map";
 
 import T "../Types";
 import Utils "../../Utils";
 
 module {
+    let { Buffer } = Utils;
 
     type Result<A, B> = Result.Result<A, B>;
     type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Iter<A> = Iter.Iter<A>;
     type Hash = Nat32;
-    type Map<K, V> = PureMap.Map<K, V>;
+    type Map<K, V> = Map.Map<K, V>;
     type Order = Order.Order;
 
     type Candid = T.Candid;
@@ -131,7 +132,7 @@ module {
                         let field_key = fields[i].0;
                         let field_value = fields[i].1;
 
-                        let new_key = switch (PureMap.get(renaming_map, Text.compare, field_key)) {
+                        let new_key = switch (Map.get(renaming_map, Text.compare, field_key)) {
                             case (?new_key) new_key;
                             case (_) field_key;
                         };
@@ -159,7 +160,7 @@ module {
                         let field_key = fields[i].0;
                         let field_value = fields[i].1;
 
-                        let new_key = switch (PureMap.get(renaming_map, Text.compare, field_key)) {
+                        let new_key = switch (Map.get(renaming_map, Text.compare, field_key)) {
                             case (?new_key) new_key;
                             case (_) field_key;
                         };

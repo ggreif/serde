@@ -23,7 +23,6 @@ import Int16 "mo:core/Int16";
 
 import Itertools "mo:itertools@0.2.2/Iter";
 import PeekableIter "mo:itertools@0.2.2/PeekableIter";
-import PureMap "mo:core/pure/Map";
 import Map "mo:core/Map";
 import ByteUtils "mo:byte-utils";
 
@@ -32,23 +31,23 @@ import Utils "../../Utils";
 import CandidUtils "CandidUtils";
 
 module {
+    let { Buffer } = Utils;
     type Result<A, B> = Result.Result<A, B>;
     type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Iter<A> = Iter.Iter<A>;
     type Hash = Nat32;
-    type PureMapType<K, V> = PureMap.Map<K, V>;
     type Map<K, V> = Map.Map<K, V>;
     type Order = Order.Order;
 
     type Candid = T.Candid;
     type CandidType = T.CandidType;
     type KeyValuePair = T.KeyValuePair;
-    let { unsigned_leb128; signed_leb128_64; Buffer } = Utils;
+    let { unsigned_leb128; signed_leb128_64 } = Utils;
 
     // public func encode(candid_values : [Candid], options : ?T.Options) : Result<Blob, Text> {
-    //   let renaming_map = PureMap.empty<Text, Text>();
+    //   let renaming_map = Map.empty<Text, Text>();
     //   for ((k, v) in Option.get(options, T.defaultOptions).renameKeys.vals()) {
-    //     ignore Map.put(renaming_map, thash, k, v);
+    //     Map.add(renaming_map, Text.compare, k, v);
     //   };
     //   let (candid_types) = switch (infer_candid_types(candid_values, renaming_map)) {
     //     case (#ok(inferred_types)) Array.map(
@@ -68,7 +67,7 @@ module {
         encode([candid], options);
     };
 
-    func infer_candid_types(candid_values : [Candid], renaming_map : PureMapType<Text, Text>) : Result<[CandidType], Text> {
+    func infer_candid_types(candid_values : [Candid], renaming_map : Map<Text, Text>) : Result<[CandidType], Text> {
         let buffer = Buffer.Buffer<CandidType>(candid_values.size());
 
         for (candid in candid_values.vals()) {
@@ -106,6 +105,8 @@ module {
 
     public func one_shot(candid_values : [Candid], _options : ?T.Options) : Result<Blob, Text> {
 
+        let renaming_map = Map.empty<Text, Text>();
+
         let compound_type_buffer = Buffer.Buffer<Nat8>(200);
         let candid_type_buffer = Buffer.Buffer<Nat8>(200);
         let value_buffer = Buffer.Buffer<Nat8>(400);
@@ -114,9 +115,8 @@ module {
 
         let options = Option.get(_options, T.defaultOptions);
 
-        var renaming_map = PureMap.empty<Text, Text>();
         for ((k, v) in options.renameKeys.vals()) {
-            renaming_map := PureMap.add(renaming_map, Text.compare, k, v);
+            Map.add(renaming_map, Text.compare, k, v);
         };
 
         var candid_types : [CandidType] = switch (options.types) {
@@ -163,10 +163,6 @@ module {
             value_buffer,
         ];
 
-        // Print each buffer in the sequence as a Blob
-        // for (buf in sequence.vals()) {
-        //   Debug.print(debug_show Blob.fromArray(Buffer.toArray(buf)));
-        // };
 
         var i = 0;
         var j = 0;
@@ -235,7 +231,7 @@ module {
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
         counter : [var Nat],
-        renaming_map : PureMapType<Text, Text>,
+        renaming_map : Map<Text, Text>,
     ) {
         assert candid_values.size() == candid_types.size();
 
@@ -243,7 +239,7 @@ module {
         // unsigned_leb128(type_buffer, candid_values.size());
 
         let unique_compound_type_map = Map.empty<Text, Nat>();
-        let recursive_map = PureMap.empty<Text, Text>();
+        let recursive_map = Map.empty<Text, Text>();
 
         var i = 0;
 
@@ -273,9 +269,9 @@ module {
         candid_type : CandidType,
         candid_value : Candid,
         value_buffer : Buffer<Nat8>,
-        renaming_map : PureMapType<Text, Text>,
+        renaming_map : Map<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : PureMapType<Text, Text>,
+        recursive_map : Map<Text, Text>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
     ) : ?Hash {
@@ -287,7 +283,7 @@ module {
         if (candid_is_compound_type) {
             switch (candid_type, candid_value) {
                 case (#Option(opt_type), #Option(opt_value)) {
-                    if (opt_value == #Null and opt_type != #Null) {
+                    if (opt_value == #Null) {
                         value_buffer.add(0); // no value
                     } else {
                         value_buffer.add(1); // has value
@@ -369,18 +365,18 @@ module {
                 };
                 case (#Record(record_types) or #Map(record_types), #Record(record_entries) or #Map(record_entries)) {
 
-                    var record_entry_cache = PureMap.empty<Text, Candid>();
+                    let record_entry_cache : Map.Map<Text, Candid> = Map.empty<Text, Candid>();
 
                     for ((k, v) in record_entries.vals()) {
                         let field_value_key = get_renamed_key(renaming_map, k);
-                        record_entry_cache := PureMap.add(record_entry_cache, Text.compare, field_value_key, v);
+                        Map.add(record_entry_cache, Text.compare, field_value_key, v);
                     };
 
                     var i = 0;
                     while (i < record_types.size()) {
                         let field_type = record_types[i].1;
                         let field_type_key = get_renamed_key(renaming_map, record_types[i].0);
-                        let field_value = switch (PureMap.get(record_entry_cache, Text.compare, field_type_key)) {
+                        let field_value = switch (Map.get(record_entry_cache, Text.compare, field_type_key)) {
                             case (?field_value) {
                                 // If field type is optional but value isn't, wrap it
                                 switch (field_type, field_value) {
@@ -398,7 +394,7 @@ module {
                                 // Field is missing - if the type is optional, use #Null
                                 switch (field_type) {
                                     case (#Option(_)) #Null;
-                                    case (_) Runtime.trap("unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
+                                    case (_) Runtime.trap("encode_value_only() error: unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
                                 };
                             };
                         };
@@ -529,10 +525,7 @@ module {
                     ByteUtils.Buffer.LE.addInt64(value_buffer, i64);
                 };
                 case (#Float, #Float(f64)) {
-                    let bytes = ByteUtils.LE.fromFloat(f64);
-                    for (byte in bytes.vals()) {
-                        value_buffer.add(byte);
-                    };
+                    ByteUtils.Buffer.LE.addFloat(value_buffer, f64);
                 };
                 case (#Bool, #Bool(b)) {
                     value_buffer.add(if (b) (1) else (0));
@@ -611,7 +604,7 @@ module {
         candid_type : CandidType,
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
-        renaming_map : PureMapType<Text, Text>,
+        renaming_map : Map<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
@@ -826,7 +819,7 @@ module {
         candid_type : CandidType,
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
-        renaming_map : PureMapType<Text, Text>,
+        renaming_map : Map<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
@@ -877,9 +870,9 @@ module {
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
-        renaming_map : PureMapType<Text, Text>,
+        renaming_map : Map<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : PureMapType<Text, Text>,
+        recursive_map : Map<Text, Text>,
         is_nested_child_of_compound_type : Bool,
         ignore_type : Bool,
     ) {
@@ -895,9 +888,7 @@ module {
 
         switch (candid_type, candid_value) {
             case (#Nat, #Nat(n)) {
-                // Debug.print("start encoding Nat: " # debug_show n);
                 ref_candid_type_buffer.add(T.TypeCode.Nat);
-                // Debug.print("encoded type codde");
                 unsigned_leb128(value_buffer, n);
 
             };
@@ -939,10 +930,7 @@ module {
             };
             case (#Float, #Float(f64)) {
                 ref_candid_type_buffer.add(T.TypeCode.Float);
-                let bytes = ByteUtils.LE.fromFloat(f64);
-                for (byte in bytes.vals()) {
-                    value_buffer.add(byte);
-                };
+                ByteUtils.Buffer.LE.addFloat(value_buffer, f64);
             };
             case (#Bool, #Bool(b)) {
                 ref_candid_type_buffer.add(T.TypeCode.Bool);
@@ -990,9 +978,9 @@ module {
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
-        renaming_map : PureMapType<Text, Text>,
+        renaming_map : Map<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : PureMapType<Text, Text>,
+        recursive_map : Map<Text, Text>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
         _type_exists : Bool,
@@ -1022,9 +1010,10 @@ module {
                     compound_type_buffer.add(T.TypeCode.Option);
                 };
 
-                if (opt_value == #Null and opt_type != #Null) {
-                    // a result of being able to set #Null at any point in an #Option type
-                    // for instance, type #Option(#Nat) with value #Null
+                if (opt_value == #Null) {
+                    // #Option(#Null) encodes as absent, regardless of the inner type.
+                    // This handles both explicit #Option(#Null) and inferred types where
+                    // the resolved type may differ (e.g. #Option(#Array(...)) from other elements).
 
                     value_buffer.add(0); // no value
 
@@ -1229,11 +1218,11 @@ module {
                     record_entries.size() + 3;
                 };
 
-                var record_entry_cache = PureMap.empty<Text, Candid>();
+                let record_entry_cache : Map.Map<Text, Candid> = Map.empty<Text, Candid>();
 
                 for ((k, v) in record_entries.vals()) {
                     let field_value_key = get_renamed_key(renaming_map, k);
-                    record_entry_cache := PureMap.add(record_entry_cache, Text.compare, field_value_key, v);
+                    Map.add(record_entry_cache, Text.compare, field_value_key, v);
                 };
 
                 var i = 0;
@@ -1242,7 +1231,7 @@ module {
 
                     let field_type_key = get_renamed_key(renaming_map, record_types[i].0);
 
-                    let field_value = switch (PureMap.get(record_entry_cache, Text.compare, field_type_key)) {
+                    let field_value = switch (Map.get(record_entry_cache, Text.compare, field_type_key)) {
                         case (?field_value) {
                             // If field type is optional but value isn't, wrap it
                             switch (field_type, field_value) {
@@ -1260,7 +1249,7 @@ module {
                             // Field is missing - if the type is optional, use #Null
                             switch (field_type) {
                                 case (#Option(_)) #Null;
-                                case (_) Runtime.trap("unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
+                                case (_) Runtime.trap("encode_compound_type() error: unable to find field key in field types: " # debug_show field_type_key # "in " # debug_show record_entries);
                             };
                         };
                     };
@@ -1504,9 +1493,9 @@ module {
         compound_type_buffer : Buffer<Nat8>,
         candid_type_buffer : Buffer<Nat8>,
         value_buffer : Buffer<Nat8>,
-        renaming_map : PureMapType<Text, Text>,
+        renaming_map : Map<Text, Text>,
         unique_compound_type_map : Map<Text, Nat>,
-        recursive_map : PureMapType<Text, Text>,
+        recursive_map : Map<Text, Text>,
         counter : [var Nat],
         is_nested_child_of_compound_type : Bool,
         ignore_type : Bool,
@@ -1588,7 +1577,7 @@ module {
         key : ?Text;
     };
 
-    func to_candid_types(candid : Candid, renaming_map : PureMapType<Text, Text>) : (InternalCandidTypes) {
+    func to_candid_types(candid : Candid, renaming_map : Map<Text, Text>) : (InternalCandidTypes) {
         switch (candid) {
             case (#Nat(_)) (#Nat);
             case (#Nat8(_)) (#Nat8);
@@ -1794,7 +1783,7 @@ module {
 
                         // If we have multiple records, merge their fields
                         let merged_type = if (has_records and all_records.size() > 1) {
-                            var field_map = PureMap.empty<Text, (CandidType, Nat, Nat)>(); // key -> (type, height, count)
+                            let field_map = Map.empty<Text, (CandidType, Nat, Nat)>(); // key -> (type, height, count)
                             var max_height = 0;
 
                             for (record_fields in all_records.vals()) {
@@ -1802,29 +1791,29 @@ module {
                                     let field_depth = get_type_depth(field_type);
                                     max_height := Nat.max(max_height, field_depth);
 
-                                    switch (PureMap.get(field_map, Text.compare, field_key)) {
+                                    switch (Map.get(field_map, Text.compare, field_key)) {
                                         case (?existing) {
                                             let (existing_type, existing_height, count) = existing;
 
                                             // Choose better type
                                             if (is_better_type(field_type, field_depth, existing_type, existing_height)) {
-                                                field_map := PureMap.add(field_map, Text.compare, field_key, (field_type, field_depth, count + 1));
+                                                Map.add(field_map, Text.compare, field_key, (field_type, field_depth, count + 1));
                                             } else {
-                                                field_map := PureMap.add(field_map, Text.compare, field_key, (existing_type, existing_height, count + 1));
+                                                Map.add(field_map, Text.compare, field_key, (existing_type, existing_height, count + 1));
                                             };
                                         };
                                         case (null) {
-                                            field_map := PureMap.add(field_map, Text.compare, field_key, (field_type, field_depth, 1));
+                                            Map.add(field_map, Text.compare, field_key, (field_type, field_depth, 1));
                                         };
                                     };
                                 };
                             };
 
                             // Build merged record type, wrapping optional fields
-                            let merged_fields = Buffer.Buffer<(Text, CandidType)>(PureMap.size(field_map));
+                            let merged_fields = Buffer.Buffer<(Text, CandidType)>(Map.size(field_map));
                             let total_records = all_records.size();
 
-                            for ((field_key, (field_type, field_height, count)) in PureMap.entries(field_map)) {
+                            for ((field_key, (field_type, field_height, count)) in Map.entries(field_map)) {
                                 // If field doesn't appear in all records, make it optional
                                 let final_type = if (count < total_records) {
                                     switch (field_type) {
@@ -1952,28 +1941,28 @@ module {
             if (variants.size() > 0) {
                 // Merge variant types with the same key, choosing the better (more specific) type
                 let merged_variants = Buffer.Buffer<(Text, CandidType)>(variants.size());
-                var variant_map = PureMap.empty<Text, (CandidType, Nat)>(); // key -> (type, height)
+                let variant_map = Map.empty<Text, (CandidType, Nat)>(); // key -> (type, height)
 
                 for ((key, variant_type) in variants.vals()) {
-                    switch (PureMap.get(variant_map, Text.compare, key)) {
+                    switch (Map.get(variant_map, Text.compare, key)) {
                         case (?existing) {
                             let (existing_type, existing_height) = existing;
                             let variant_depth = get_type_depth(variant_type);
 
                             // Choose the better type
                             if (is_better_type(variant_type, variant_depth, existing_type, existing_height)) {
-                                variant_map := PureMap.add(variant_map, Text.compare, key, (variant_type, variant_depth));
+                                Map.add(variant_map, Text.compare, key, (variant_type, variant_depth));
                             };
                         };
                         case (null) {
                             let variant_depth = get_type_depth(variant_type);
-                            variant_map := PureMap.add(variant_map, Text.compare, key, (variant_type, variant_depth));
+                            Map.add(variant_map, Text.compare, key, (variant_type, variant_depth));
                         };
                     };
                 };
 
                 // Convert map back to array
-                for ((key, (variant_type, _)) in PureMap.entries(variant_map)) {
+                for ((key, (variant_type, _)) in Map.entries(variant_map)) {
                     merged_variants.add((key, variant_type));
                 };
 
@@ -2123,7 +2112,7 @@ module {
 
             var has_compound_type = false;
 
-            for ((index, parent_node) in Itertools.enumerate(candid_values.vals())) {
+            for ((index, parent_node) in Itertools.enumerate(candid_values.values())) {
 
                 switch (parent_node.type_) {
                     case (#Option(inner_type)) {
@@ -2191,8 +2180,8 @@ module {
         };
     };
 
-    func get_renamed_key(renaming_map : PureMapType<Text, Text>, key : Text) : Text {
-        switch (PureMap.get(renaming_map, Text.compare, key)) {
+    func get_renamed_key(renaming_map : Map<Text, Text>, key : Text) : Text {
+        switch (Map.get(renaming_map, Text.compare, key)) {
             case (?v) v;
             case (_) key;
         };
