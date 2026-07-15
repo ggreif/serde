@@ -11,7 +11,7 @@ core = "2.4.0"
 "xtended-numbers" = "2.3.0"
 "byte-utils" = "0.2.0"
 "cbor@4.1.0" = "4.1.0"
-"sha2@0.1.6" = "0.1.6"
+sha2 = "0.2.5"
 
 [dev-dependencies]
 "base@0.16" = "0.16.0"

@@ -16,7 +16,7 @@ import Int16 "mo:core/Int16";
 
 import T "../Types";
 import Utils "../../Utils";
-import Sha256 "mo:sha2@0.1.6/Sha256";
+import Sha256 "mo:sha2/Sha256";
 
 import ByteUtils "mo:byte-utils";
 
@@ -28,7 +28,7 @@ module {
     public func hash(candid_value : T.Candid) : Blob {
         // let buffer = ReusableBuffer<Nat8>(100);
         let buffer = Buffer.Buffer<Nat8>(100);
-        let sha256 = Sha256.Digest(#sha256);
+        let sha256 = Sha256.new(#sha256);
 
         candid_hash(buffer, sha256, candid_value);
     };
@@ -88,7 +88,7 @@ module {
 
             };
             case (#Blob(b)) {
-                sha256.writeBlob(b);
+                Sha256.writeBlob(sha256, b);
             };
             case (#Principal(p)) {
 
@@ -151,11 +151,11 @@ module {
             case (candid) Runtime.trap("oops: " # debug_show (candid));
         };
 
-        sha256.writeIter(buffer.vals());
+        Sha256.writeIter(sha256, buffer.vals());
         buffer.clear();
 
-        let resulting_hash = sha256.sum();
-        sha256.reset(); // !important to reset the sha256 instance for future use
+        let resulting_hash = Sha256.sum(sha256);
+        Sha256.reset(sha256); // !important to reset the sha256 instance for future use
 
         resulting_hash;
 
