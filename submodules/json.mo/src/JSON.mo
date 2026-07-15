@@ -1,12 +1,12 @@
-import Char "mo:base@0.16/Char";
-import Iter "mo:base@0.16/Iter";
-import Int "mo:base@0.16/Int";
-import Float "mo:base@0.16/Float";
-import List "mo:base@0.16/List";
-import Nat8 "mo:base@0.16/Nat8";
-import Nat32 "mo:base@0.16/Nat32";
-import Result "mo:base@0.16/Result";
-import Text "mo:base@0.16/Text";
+import Char "mo:core/Char";
+import Iter "mo:core/Iter";
+import Int "mo:core/Int";
+import Float "mo:core/Float";
+import List "mo:core/pure/List";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Result "mo:core/Result";
+import Text "mo:core/Text";
 
 import C "../../parser-combinators.mo/src/Combinators";
 import L "../../parser-combinators.mo/src/List";
@@ -25,7 +25,7 @@ module JSON {
 
     public func show(json : JSON) : Text = switch (json) {
         case (#Number(v)) { Int.toText(v) };
-        case (#Float(v)) { Float.format(#fix(2), v) };
+        case (#Float(v)) { Float.format(v, #fix(2)) };
         case (#String(v)) { "\"" # v # "\"" };
         case (#Array(v)) {
             var s = "[";
@@ -264,7 +264,7 @@ module JSON {
                 var num = n;
                 var n_of_decimals : Float = 0;
 
-                for (char in List.toIter(decimal_list)) {
+                for (char in List.values(decimal_list)) {
                     let digit = Nat32.toNat(
                         Char.toNat32(char) - Char.toNat32('0')
                     );

@@ -13,9 +13,9 @@ core = "2.4.0"
 "byte-utils" = "0.2.0"
 "cbor@4.1.0" = "4.1.0"
 "sha2@0.1.6" = "0.1.6"
-"base@0.16" = "0.16.0" # only for the vendored submodules/json.mo
 
 [dev-dependencies]
+"base@0.16" = "0.16.0"
 "map@9.0" = "9.0.1"
 test = "2.1.2"
 fuzz = "1.0.0"

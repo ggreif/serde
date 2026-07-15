@@ -8,9 +8,11 @@ De-base: `serde-core`'s own code no longer depends on `mo:base` or `mo:map`.
   by-reference so the recursive-type cycle guard propagates across calls), `core/pure/Map` where a
   build-once map is passed to a pure consumer, and `mo:base/Buffer` → a `core/List`-backed
   `Utils.Buffer` wrapper.
-- `mops.toml`: `map` dropped from runtime dependencies (now dev-only, for tests); `base@0.16`
-  retained **only** for the vendored `submodules/json.mo`; core-aligned dependency aliases;
-  toolchain `moc = "1.6.0"`.
+- `mops.toml`: **no `base` in runtime dependencies.** The vendored submodules `json.mo` and
+  `parser-combinators.mo` were also migrated to core (base `List` → `core/pure/List` incl. the
+  `push`→`pushFront` arg-swap, `Float.format` arg-order/`Nat8` spec, `toIter`→`values`). `base@0.16`
+  and `map@9.0` are now **dev-only** (tests/benches). Core-aligned aliases; toolchain `moc = "1.6.0"`.
+  (Residual `base@0.10` still enters transitively via `itertools@0.2.2` — tracked separately.)
 - Fixes the recursive-type stack-overflow that a pure-`Set` refactor had introduced (un-threaded
   local sets lost the "visited" state); the proven mutable-set guard is preserved.
 - No public API changes. Verified on moc 1.6.0: 0 errors, no deprecation warnings; `mops test`

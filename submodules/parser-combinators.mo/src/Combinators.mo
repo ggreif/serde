@@ -1,8 +1,8 @@
-import Char "mo:base@0.16/Char";
-import Iter "mo:base@0.16/Iter";
-import List "mo:base@0.16/List";
-import Nat32 "mo:base@0.16/Nat32";
-import Text "mo:base@0.16/Text";
+import Char "mo:core/Char";
+import Iter "mo:core/Iter";
+import List "mo:core/pure/List";
+import Nat32 "mo:core/Nat32";
+import Text "mo:core/Text";
 
 import P "Parser";
 import L "List";
@@ -129,7 +129,7 @@ module {
                 bind(
                     parserAs,
                     func(as : List<A>) : Parser<T, List<A>> {
-                        P.result<T, List<A>>(List.push(a, as));
+                        P.result<T, List<A>>(List.pushFront(as, a));
                     },
                 );
             },
@@ -149,12 +149,12 @@ module {
                     bind(
                         many(parserA),
                         func(as : List<A>) : Parser<T, List<A>> {
-                            P.result<T, List<A>>(List.push(a, as));
+                            P.result<T, List<A>>(List.pushFront(as, a));
                         },
                     );
                 },
             ),
-            P.result<T, List<A>>(List.nil()),
+            P.result<T, List<A>>(List.empty()),
         );
     };
 
@@ -199,7 +199,7 @@ module {
     ) : Parser<T, List<A>> {
         choose(
             sepBy1(parserA, parserB),
-            P.result<T, List<A>>(List.nil()),
+            P.result<T, List<A>>(List.empty()),
         );
     };
 
@@ -222,7 +222,7 @@ module {
         n : Nat,
     ) : Parser<T, List<A>> {
         if (0 < n) { cons(parserA, count(parserA, n - 1 : Nat)) } else {
-            P.result(List.nil());
+            P.result(List.empty());
         };
     };
 
