@@ -22,9 +22,8 @@ import ByteUtils "mo:byte-utils";
 
 module {
     let { Buffer } = Utils;
-    type Buffer<A> = Utils.Buffer.Buffer<A>;
 
-    let { ReusableBuffer; unsigned_leb128; signed_leb128_64 } = Utils;
+    let { unsigned_leb128; signed_leb128_64 } = Utils;
 
     public func hash(candid_value : T.Candid) : Blob {
         // let buffer = ReusableBuffer<Nat8>(100);

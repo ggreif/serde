@@ -29,8 +29,6 @@ module TypedSerializer {
     type Result<A, B> = Result.Result<A, B>;
     type Candid = T.Candid;
     type KeyValuePair = T.KeyValuePair;
-
-    type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Hash = Nat32;
     type Map<K, V> = Map.Map<K, V>;
     type Set<A> = Set.Set<A>;

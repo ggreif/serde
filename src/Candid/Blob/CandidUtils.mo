@@ -13,10 +13,8 @@ import T "../Types";
 import Utils "../../Utils";
 
 module {
-    let { Buffer } = Utils;
 
     type Result<A, B> = Result.Result<A, B>;
-    type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Iter<A> = Iter.Iter<A>;
     type Hash = Nat32;
     type Map<K, V> = Map.Map<K, V>;
