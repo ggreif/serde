@@ -21,7 +21,6 @@ import Float "mo:core@2.4/Float";
 
 import Bench "mo:bench";
 import Fuzz "mo:fuzz";
-import Itertools "mo:itertools@0.2.2/Iter";
 
 import Serde "../src";
 import CandidEncoder "../src/Candid/Blob/Encoder";
@@ -143,7 +142,7 @@ module {
         Debug.print("Generating test data for all types...");
 
         // Populate test data
-        for (i in Itertools.range(0, limit)) {
+        for (i in Nat.range(0, limit)) {
             // Primitive types
             let int = fuzz.int.randomRange(-1_000_000, 1_000_000);
             let nat = Int.abs(int);
@@ -406,101 +405,101 @@ module {
                 switch (col, row) {
                 // Primitive Types - Encoding
                 case ("encode()", "Nat") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Nat(nat_values.get(i))], null);
                         encoded_blobs.nat.add(blob);
                     };
                 };
                 case ("encode()", "Nat8") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Nat8(nat8_values.get(i))], null);
                         encoded_blobs.nat8.add(blob);
                     };
                 };
                 case ("encode()", "Nat16") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Nat16(nat16_values.get(i))], null);
                         encoded_blobs.nat16.add(blob);
                     };
                 };
                 case ("encode()", "Nat32") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Nat32(nat32_values.get(i))], null);
                         encoded_blobs.nat32.add(blob);
                     };
                 };
                 case ("encode()", "Nat64") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Nat64(nat64_values.get(i))], null);
                         encoded_blobs.nat64.add(blob);
                     };
                 };
                 case ("encode()", "Int") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Int(int_values.get(i))], null);
                         encoded_blobs.int.add(blob);
                     };
                 };
                 case ("encode()", "Int8") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Int8(int8_values.get(i))], null);
                         encoded_blobs.int8.add(blob);
                     };
                 };
                 case ("encode()", "Int16") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Int16(int16_values.get(i))], null);
                         encoded_blobs.int16.add(blob);
                     };
                 };
                 case ("encode()", "Int32") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Int32(int32_values.get(i))], null);
                         encoded_blobs.int32.add(blob);
                     };
                 };
                 case ("encode()", "Int64") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Int64(int64_values.get(i))], null);
                         encoded_blobs.int64.add(blob);
                     };
                 };
                 case ("encode()", "Float") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Float(float_values.get(i))], null);
                         encoded_blobs.float.add(blob);
                     };
                 };
                 case ("encode()", "Bool") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Bool(bool_values.get(i))], null);
                         encoded_blobs.bool.add(blob);
                     };
                 };
                 case ("encode()", "Text") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Text(text_values.get(i))], null);
                         encoded_blobs.text.add(blob);
                     };
                 };
                 case ("encode()", "Null") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Null], null);
                     };
                 };
                 case ("encode()", "Empty") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Empty], null);
                     };
                 };
                 case ("encode()", "Principal") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Principal(principal_values.get(i))], null);
                         encoded_blobs.principal.add(blob);
                     };
                 };
                 case ("encode()", "Blob") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Blob(blob_values.get(i))], null);
                         encoded_blobs.blob.add(blob);
                     };
@@ -508,7 +507,7 @@ module {
 
                 // Compound Types - Encoding
                 case ("encode()", "Option(Nat)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot(
                             [
                                 #Option(
@@ -524,7 +523,7 @@ module {
                     };
                 };
                 case ("encode()", "Option(Text)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot(
                             [
                                 #Option(
@@ -540,21 +539,21 @@ module {
                     };
                 };
                 case ("encode()", "Array(Nat8)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let arr = Array.map<Nat8, Candid>(array_nat8_values.get(i), func(n) = #Nat8(n));
                         let #ok(blob) = CandidEncoder.one_shot([#Array(arr)], null);
                         encoded_blobs.array_nat8.add(blob);
                     };
                 };
                 case ("encode()", "Array(Text)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let arr = Array.map<Text, Candid>(array_text_values.get(i), func(t) = #Text(t));
                         let #ok(blob) = CandidEncoder.one_shot([#Array(arr)], null);
                         encoded_blobs.array_text.add(blob);
                     };
                 };
                 case ("encode()", "Array(Record)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let record_arr = Array.map<SimpleRecord, Candid>(
                             [simple_record_values.get(i)],
                             func(r) = #Record([("id", #Nat(r.id)), ("name", #Text(r.name)), ("active", #Bool(r.active))]),
@@ -564,7 +563,7 @@ module {
                     };
                 };
                 case ("encode()", "Record(Simple)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let record = simple_record_values.get(i);
                         let #ok(blob) = CandidEncoder.one_shot(
                             [
@@ -576,7 +575,7 @@ module {
                     };
                 };
                 case ("encode()", "Record(Nested)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let record = nested_record_values.get(i);
                         let settings_candid = switch (record.settings) {
                             case (?s) #Option(#Record([("theme", #Text(s.theme)), ("notifications", #Bool(s.notifications))]));
@@ -596,7 +595,7 @@ module {
                     };
                 };
                 case ("encode()", "Tuple(Mixed)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let (n, t, b, f) = mixed_tuple_values.get(i);
                         let float_opt = switch (f) {
                             case (?fl) #Option(#Float(fl));
@@ -612,7 +611,7 @@ module {
                     };
                 };
                 case ("encode()", "Variant(Simple)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let variant_candid = switch (simple_variant_values.get(i)) {
                             case (#success(n)) #Variant(("success", #Nat(n)));
                             case (#error(msg)) #Variant(("error", #Text(msg)));
@@ -623,7 +622,7 @@ module {
                     };
                 };
                 case ("encode()", "Variant(Complex)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let variant_candid = switch (complex_variant_values.get(i)) {
                             case (#user(u)) #Variant(("user", #Record([("id", #Nat(u.id)), ("name", #Text(u.name)), ("active", #Bool(u.active))])));
                             case (#admin(a)) {
@@ -640,7 +639,7 @@ module {
                     };
                 };
                 case ("encode()", "Map(Text->Nat)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let map_entries = Array.map<(Text, Nat), (Text, Candid)>(
                             map_values.get(i),
                             func((k, v)) = (k, #Nat(v)),
@@ -650,206 +649,206 @@ module {
                     };
                 };
                 case ("encode()", "Large Text") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Text(large_text_values.get(i))], null);
                         encoded_blobs.large_text.add(blob);
                     };
                 };
                 case ("encode()", "Large Array") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let arr = Array.map<Nat, Candid>(large_array_values.get(i), func(n) = #Nat(n));
                         let #ok(blob) = CandidEncoder.one_shot([#Array(arr)], null);
                         encoded_blobs.large_array.add(blob);
                     };
                 };
                 case ("encode()", "Deep Nesting") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([deep_nesting_values.get(i)], null);
                         encoded_blobs.deep_nesting.add(blob);
                     };
                 };
                 case ("encode()", "Wide Record") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([wide_record_values.get(i)], null);
                         encoded_blobs.wide_record.add(blob);
                     };
                 };
                 case ("encode()", "Recursive Structure") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([deep_nesting_values.get(i)], null);
                     };
                 };
 
                 // Primitive Types - Decoding
                 case ("decode()", "Nat") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat.get(i), [], null);
                     };
                 };
                 case ("decode()", "Nat8") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat8.get(i), [], null);
                     };
                 };
                 case ("decode()", "Nat16") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat16.get(i), [], null);
                     };
                 };
                 case ("decode()", "Nat32") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat32.get(i), [], null);
                     };
                 };
                 case ("decode()", "Nat64") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat64.get(i), [], null);
                     };
                 };
                 case ("decode()", "Int") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int.get(i), [], null);
                     };
                 };
                 case ("decode()", "Int8") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int8.get(i), [], null);
                     };
                 };
                 case ("decode()", "Int16") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int16.get(i), [], null);
                     };
                 };
                 case ("decode()", "Int32") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int32.get(i), [], null);
                     };
                 };
                 case ("decode()", "Int64") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int64.get(i), [], null);
                     };
                 };
                 case ("decode()", "Float") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.float.get(i), [], null);
                     };
                 };
                 case ("decode()", "Bool") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.bool.get(i), [], null);
                     };
                 };
                 case ("decode()", "Text") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.text.get(i), [], null);
                     };
                 };
                 case ("decode()", "Null") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Null], null);
                         let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
                     };
                 };
                 case ("decode()", "Empty") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(blob) = CandidEncoder.one_shot([#Empty], null);
                         let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
                     };
                 };
                 case ("decode()", "Principal") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.principal.get(i), [], null);
                     };
                 };
                 case ("decode()", "Blob") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.blob.get(i), [], null);
                     };
                 };
 
                 // Compound Types - Decoding
                 case ("decode()", "Option(Nat)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.option_nat.get(i), [], null);
                     };
                 };
                 case ("decode()", "Option(Text)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.option_text.get(i), [], null);
                     };
                 };
                 case ("decode()", "Array(Nat8)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.array_nat8.get(i), [], null);
                     };
                 };
                 case ("decode()", "Array(Text)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.array_text.get(i), [], null);
                     };
                 };
                 case ("decode()", "Array(Record)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.simple_record.get(i), ["id", "name", "active"], null);
                     };
                 };
                 case ("decode()", "Record(Simple)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.simple_record.get(i), ["id", "name", "active"], null);
                     };
                 };
                 case ("decode()", "Record(Nested)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let record_keys = ["user", "metadata", "settings"];
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nested_record.get(i), record_keys, null);
                     };
                 };
                 case ("decode()", "Tuple(Mixed)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.mixed_tuple.get(i), [], null);
                     };
                 };
                 case ("decode()", "Variant(Simple)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.simple_variant.get(i), [], null);
                     };
                 };
                 case ("decode()", "Variant(Complex)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.complex_variant.get(i), [], null);
                     };
                 };
                 case ("decode()", "Map(Text->Nat)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.map_values.get(i), [], null);
                     };
                 };
                 case ("decode()", "Large Text") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.large_text.get(i), [], null);
                     };
                 };
                 case ("decode()", "Large Array") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.large_array.get(i), [], null);
                     };
                 };
                 case ("decode()", "Deep Nesting") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let record_keys = ["level1", "level2", "level3", "level4", "level5"];
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.deep_nesting.get(i), record_keys, null);
                     };
                 };
                 case ("decode()", "Wide Record") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let record_keys = Array.tabulate<Text>(20, func(j) = "field" # Nat.toText(j));
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.wide_record.get(i), record_keys, null);
                     };
                 };
                 case ("decode()", "Recursive Structure") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let record_keys = ["level1", "level2", "level3", "level4", "level5"];
                         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.deep_nesting.get(i), record_keys, null);
                     };
@@ -858,7 +857,7 @@ module {
                 // Sans-inference encoding (with formatted types for optimal performance)
                 case ("encode(sans inference)", "Nat") {
                     encoded_blobs.nat.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat
                         };
@@ -868,7 +867,7 @@ module {
                 };
                 case ("encode(sans inference)", "Nat8") {
                     encoded_blobs.nat8.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat8
                         };
@@ -878,7 +877,7 @@ module {
                 };
                 case ("encode(sans inference)", "Nat16") {
                     encoded_blobs.nat16.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat16
                         };
@@ -888,7 +887,7 @@ module {
                 };
                 case ("encode(sans inference)", "Nat32") {
                     encoded_blobs.nat32.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat32
                         };
@@ -898,7 +897,7 @@ module {
                 };
                 case ("encode(sans inference)", "Nat64") {
                     encoded_blobs.nat64.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat64
                         };
@@ -908,7 +907,7 @@ module {
                 };
                 case ("encode(sans inference)", "Int") {
                     encoded_blobs.int.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int
                         };
@@ -918,7 +917,7 @@ module {
                 };
                 case ("encode(sans inference)", "Int8") {
                     encoded_blobs.int8.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int8
                         };
@@ -928,7 +927,7 @@ module {
                 };
                 case ("encode(sans inference)", "Int16") {
                     encoded_blobs.int16.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int16
                         };
@@ -938,7 +937,7 @@ module {
                 };
                 case ("encode(sans inference)", "Int32") {
                     encoded_blobs.int32.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int32
                         };
@@ -948,7 +947,7 @@ module {
                 };
                 case ("encode(sans inference)", "Int64") {
                     encoded_blobs.int64.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int64
                         };
@@ -958,7 +957,7 @@ module {
                 };
                 case ("encode(sans inference)", "Float") {
                     encoded_blobs.float.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.float
                         };
@@ -968,7 +967,7 @@ module {
                 };
                 case ("encode(sans inference)", "Bool") {
                     encoded_blobs.bool.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.bool
                         };
@@ -978,7 +977,7 @@ module {
                 };
                 case ("encode(sans inference)", "Text") {
                     encoded_blobs.text.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.text
                         };
@@ -987,7 +986,7 @@ module {
                     };
                 };
                 case ("encode(sans inference)", "Null") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.null_
                         };
@@ -995,7 +994,7 @@ module {
                     };
                 };
                 case ("encode(sans inference)", "Empty") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.empty
                         };
@@ -1004,7 +1003,7 @@ module {
                 };
                 case ("encode(sans inference)", "Principal") {
                     encoded_blobs.principal.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.principal
                         };
@@ -1014,7 +1013,7 @@ module {
                 };
                 case ("encode(sans inference)", "Blob") {
                     encoded_blobs.blob.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.blob
                         };
@@ -1024,7 +1023,7 @@ module {
                 };
                 case ("encode(sans inference)", "Option(Nat)") {
                     encoded_blobs.option_nat.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_nat
                         };
@@ -1044,7 +1043,7 @@ module {
                 };
                 case ("encode(sans inference)", "Option(Text)") {
                     encoded_blobs.option_text.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_text
                         };
@@ -1064,7 +1063,7 @@ module {
                 };
                 case ("encode(sans inference)", "Array(Nat8)") {
                     encoded_blobs.array_nat8.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_nat8
                         };
@@ -1075,7 +1074,7 @@ module {
                 };
                 case ("encode(sans inference)", "Array(Text)") {
                     encoded_blobs.array_text.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_text
                         };
@@ -1086,7 +1085,7 @@ module {
                 };
                 case ("encode(sans inference)", "Array(Record)") {
                     encoded_blobs.simple_record.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_record
                         };
@@ -1100,7 +1099,7 @@ module {
                 };
                 case ("encode(sans inference)", "Record(Simple)") {
                     encoded_blobs.simple_record.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.simple_record
                         };
@@ -1116,7 +1115,7 @@ module {
                 };
                 case ("encode(sans inference)", "Record(Nested)") {
                     encoded_blobs.nested_record.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.nested_record
                         };
@@ -1140,7 +1139,7 @@ module {
                 };
                 case ("encode(sans inference)", "Tuple(Mixed)") {
                     encoded_blobs.mixed_tuple.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.tuple_mixed
                         };
@@ -1160,7 +1159,7 @@ module {
                 };
                 case ("encode(sans inference)", "Variant(Simple)") {
                     encoded_blobs.simple_variant.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_simple
                         };
@@ -1175,7 +1174,7 @@ module {
                 };
                 case ("encode(sans inference)", "Variant(Complex)") {
                     encoded_blobs.complex_variant.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_complex
                         };
@@ -1196,7 +1195,7 @@ module {
                 };
                 case ("encode(sans inference)", "Map(Text->Nat)") {
                     encoded_blobs.map_values.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.map_text_nat
                         };
@@ -1210,7 +1209,7 @@ module {
                 };
                 case ("encode(sans inference)", "Large Text") {
                     encoded_blobs.large_text.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_text
                         };
@@ -1220,7 +1219,7 @@ module {
                 };
                 case ("encode(sans inference)", "Large Array") {
                     encoded_blobs.large_array.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_array
                         };
@@ -1231,7 +1230,7 @@ module {
                 };
                 case ("encode(sans inference)", "Deep Nesting") {
                     encoded_blobs.deep_nesting.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting
                         };
@@ -1241,7 +1240,7 @@ module {
                 };
                 case ("encode(sans inference)", "Wide Record") {
                     encoded_blobs.wide_record.clear();
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.wide_record
                         };
@@ -1250,7 +1249,7 @@ module {
                     };
                 };
                 case ("encode(sans inference)", "Recursive Structure") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting
                         };
@@ -1260,7 +1259,7 @@ module {
 
                 // Sans-inference decoding (with predefined types)
                 case ("decode(sans inference)", "Nat") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat
                         };
@@ -1268,7 +1267,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Nat8") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat8
                         };
@@ -1276,7 +1275,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Nat16") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat16
                         };
@@ -1284,7 +1283,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Nat32") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat32
                         };
@@ -1292,7 +1291,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Nat64") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat64
                         };
@@ -1300,7 +1299,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Int") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int
                         };
@@ -1308,7 +1307,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Int8") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int8
                         };
@@ -1316,7 +1315,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Int16") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int16
                         };
@@ -1324,7 +1323,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Int32") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int32
                         };
@@ -1332,7 +1331,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Int64") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int64
                         };
@@ -1340,7 +1339,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Float") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.float
                         };
@@ -1348,7 +1347,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Bool") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.bool
                         };
@@ -1356,7 +1355,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Text") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.text
                         };
@@ -1364,7 +1363,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Null") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.null_
                         };
@@ -1373,7 +1372,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Empty") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.empty
                         };
@@ -1382,7 +1381,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Principal") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.principal
                         };
@@ -1390,7 +1389,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Blob") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_primitive_types.blob
                         };
@@ -1398,7 +1397,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Option(Nat)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_nat
                         };
@@ -1406,7 +1405,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Option(Text)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_text
                         };
@@ -1414,7 +1413,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Array(Nat8)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_nat8
                         };
@@ -1422,7 +1421,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Array(Text)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_text
                         };
@@ -1430,7 +1429,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Array(Record)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_record
                         };
@@ -1439,7 +1438,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Record(Simple)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.simple_record
                         };
@@ -1448,7 +1447,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Record(Nested)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.nested_record
                         };
@@ -1457,7 +1456,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Tuple(Mixed)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.tuple_mixed
                         };
@@ -1465,7 +1464,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Variant(Simple)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_simple
                         };
@@ -1473,7 +1472,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Variant(Complex)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_complex
                         };
@@ -1481,7 +1480,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Map(Text->Nat)") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.map_text_nat
                         };
@@ -1489,7 +1488,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Large Text") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_text
                         };
@@ -1497,7 +1496,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Large Array") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_array
                         };
@@ -1505,7 +1504,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Deep Nesting") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting
                         };
@@ -1514,7 +1513,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Wide Record") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.wide_record
                         };
@@ -1523,7 +1522,7 @@ module {
                     };
                 };
                 case ("decode(sans inference)", "Recursive Structure") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let options = {
                             Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting
                         };

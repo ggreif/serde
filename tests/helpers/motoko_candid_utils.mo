@@ -25,8 +25,7 @@ import Arg "mo:candid/Arg";
 import Value "mo:candid/Value";
 import Type "mo:candid/Type";
 import Tag "mo:candid/Tag";
-import Itertools "mo:itertools@0.2.2/Iter";
-import PeekableIter "mo:itertools@0.2.2/PeekableIter";
+import PeekableIter "../../src/PeekableIter";
 import Map "mo:map@9.0/Map";
 import FloatX "mo:xtended-numbers@2.3/FloatX";
 
@@ -352,12 +351,12 @@ module {
 
             let ?above_bottom = rows.removeLast() else return #err("trying to pop above_bottom but rows is empty");
 
-            var bottom_iter = Itertools.peekable(bottom.vals());
+            var bottom_iter = PeekableIter.fromIter(bottom.vals());
 
             let variants = Buffer.Buffer<RecordFieldType>(bottom.size());
             let variant_indexes = Buffer.Buffer<Nat>(bottom.size());
 
-            for ((index, parent_node) in Itertools.enumerate(above_bottom.vals())) {
+            for ((index, parent_node) in Iter.enumerate(above_bottom.vals())) {
                 let tmp_bottom_iter = PeekableIter.takeWhile(bottom_iter, func({ parent_index; tag } : TypeNode) : Bool = index == parent_index);
                 let { parent_index; tag = parent_tag } = parent_node;
 
@@ -501,7 +500,7 @@ module {
 
             var has_compound_type = false;
 
-            for ((index, parent_node) in Itertools.enumerate(candid_values.vals())) {
+            for ((index, parent_node) in Iter.enumerate(candid_values.vals())) {
 
                 switch (parent_node.type_) {
                     case (#opt(opt_val)) {

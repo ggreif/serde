@@ -3,7 +3,7 @@ import Array "mo:core@2.4/Array";
 import Text "mo:core@2.4/Text";
 import Principal "mo:core@2.4/Principal";
 
-import Itertools "mo:itertools@0.2.2/Iter";
+import PeekableIter "../../PeekableIter";
 
 import CandidType "../Types";
 
@@ -15,7 +15,7 @@ module {
     public func toText(candid_values : [Candid]) : Text {
         var text = "";
 
-        let candid_iter = Itertools.peekable(candid_values.vals());
+        let candid_iter = PeekableIter.fromIter(candid_values.vals());
 
         for (val in candid_iter) {
             if (candid_iter.peek() == null) {

@@ -15,7 +15,6 @@ import Nat64 "mo:core@2.4/Nat64";
 import Float "mo:core@2.4/Float";
 
 import Fuzz "mo:fuzz";
-import Itertools "mo:itertools@0.2.2/Iter";
 import Runtime "mo:core/Runtime";
 
 import { test; suite } "mo:test";
@@ -87,7 +86,7 @@ let wide_record_values = Buffer.Buffer<Candid>(limit);
 
 let random_principal = fuzz.principal.randomPrincipal(29);
 
-for (i in Itertools.range(0, limit)) {
+for (i in Nat.range(0, limit)) {
     let nat = fuzz.nat.randomRange(0, 1_000_000);
     let nat8 = fuzz.nat8.random();
     let text = fuzz.text.randomAlphanumeric(fuzz.nat.randomRange(5, 10));
@@ -302,7 +301,7 @@ suite("BenchTypes", func() {
     suite("encode()", func() {
 
         test("Nat", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Nat(nat_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.nat, blob);
@@ -311,7 +310,7 @@ suite("BenchTypes", func() {
         });
 
         test("Nat8", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Nat8(nat8_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.nat8, blob);
@@ -320,7 +319,7 @@ suite("BenchTypes", func() {
         });
 
         test("Nat16", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Nat16(nat16_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.nat16, blob);
@@ -329,7 +328,7 @@ suite("BenchTypes", func() {
         });
 
         test("Nat32", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Nat32(nat32_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.nat32, blob);
@@ -338,7 +337,7 @@ suite("BenchTypes", func() {
         });
 
         test("Nat64", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Nat64(nat64_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.nat64, blob);
@@ -347,7 +346,7 @@ suite("BenchTypes", func() {
         });
 
         test("Int", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Int(int_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.int, blob);
@@ -356,7 +355,7 @@ suite("BenchTypes", func() {
         });
 
         test("Int8", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Int8(int8_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.int8, blob);
@@ -365,7 +364,7 @@ suite("BenchTypes", func() {
         });
 
         test("Int16", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Int16(int16_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.int16, blob);
@@ -374,7 +373,7 @@ suite("BenchTypes", func() {
         });
 
         test("Int32", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Int32(int32_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.int32, blob);
@@ -383,7 +382,7 @@ suite("BenchTypes", func() {
         });
 
         test("Int64", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Int64(int64_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.int64, blob);
@@ -392,7 +391,7 @@ suite("BenchTypes", func() {
         });
 
         test("Float", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Float(float_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.float, blob);
@@ -401,7 +400,7 @@ suite("BenchTypes", func() {
         });
 
         test("Bool", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Bool(bool_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.bool, blob);
@@ -410,7 +409,7 @@ suite("BenchTypes", func() {
         });
 
         test("Text", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Text(text_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.text, blob);
@@ -419,7 +418,7 @@ suite("BenchTypes", func() {
         });
 
         test("Null", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Null;
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.null_, blob);
@@ -427,7 +426,7 @@ suite("BenchTypes", func() {
         });
 
         test("Empty", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Empty;
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.empty, blob);
@@ -435,7 +434,7 @@ suite("BenchTypes", func() {
         });
 
         test("Principal", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Principal(principal_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.principal, blob);
@@ -444,7 +443,7 @@ suite("BenchTypes", func() {
         });
 
         test("Blob", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Blob(blob_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], primitive_types.blob, blob);
@@ -453,7 +452,7 @@ suite("BenchTypes", func() {
         });
 
         test("Option(Nat)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = switch (option_nat_values.get(i)) {
                     case (?n) #Option(#Nat(n));
                     case (null) #Option(#Null);
@@ -465,7 +464,7 @@ suite("BenchTypes", func() {
         });
 
         test("Option(Text)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = switch (option_text_values.get(i)) {
                     case (?t) #Option(#Text(t));
                     case (null) #Option(#Null);
@@ -477,7 +476,7 @@ suite("BenchTypes", func() {
         });
 
         test("Array(Nat8)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let arr = Array.map<Nat8, Candid>(array_nat8_values.get(i), func(n) = #Nat8(n));
                 let candid_value = #Array(arr);
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
@@ -487,7 +486,7 @@ suite("BenchTypes", func() {
         });
 
         test("Array(Text)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let arr = Array.map<Text, Candid>(array_text_values.get(i), func(t) = #Text(t));
                 let candid_value = #Array(arr);
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
@@ -497,7 +496,7 @@ suite("BenchTypes", func() {
         });
 
         test("Array(Record)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let record_arr = Array.map<SimpleRecord, Candid>(
                     [simple_record_values.get(i)],
                     func(r) = #Record([("id", #Nat(r.id)), ("name", #Text(r.name)), ("active", #Bool(r.active))]),
@@ -510,7 +509,7 @@ suite("BenchTypes", func() {
         });
 
         test("Record(Simple)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let record = simple_record_values.get(i);
                 let candid_value = #Record([("id", #Nat(record.id)), ("name", #Text(record.name)), ("active", #Bool(record.active))]);
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
@@ -520,7 +519,7 @@ suite("BenchTypes", func() {
         });
 
         test("Record(Nested)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let record = nested_record_values.get(i);
                 let settings_candid = switch (record.settings) {
                     case (?s) #Option(#Record([("theme", #Text(s.theme)), ("notifications", #Bool(s.notifications))]));
@@ -549,7 +548,7 @@ suite("BenchTypes", func() {
         });
 
         test("Tuple(Mixed)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let (n, t, b, f) = mixed_tuple_values.get(i);
                 let float_opt = switch (f) {
                     case (?fl) #Option(#Float(fl));
@@ -563,7 +562,7 @@ suite("BenchTypes", func() {
         });
 
         test("Variant(Simple)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let variant_candid = switch (simple_variant_values.get(i)) {
                     case (#success(n)) #Variant(("success", #Nat(n)));
                     case (#error(msg)) #Variant(("error", #Text(msg)));
@@ -577,7 +576,7 @@ suite("BenchTypes", func() {
         });
 
         test("Variant(Complex)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let variant_candid = switch (complex_variant_values.get(i)) {
                     case (#user(u)) #Variant(("user", #Record([("id", #Nat(u.id)), ("name", #Text(u.name)), ("active", #Bool(u.active))])));
                     case (#admin(a)) {
@@ -600,7 +599,7 @@ suite("BenchTypes", func() {
         });
 
         test("Large Text", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = #Text(large_text_values.get(i));
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 assert TestUtils.validate_encoding_with_types([candid_value], compound_types.large_text, blob);
@@ -609,7 +608,7 @@ suite("BenchTypes", func() {
         });
 
         test("Large Array", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let arr = Array.map<Nat, Candid>(large_array_values.get(i), func(n) = #Nat(n));
                 let candid_value = #Array(arr);
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
@@ -619,7 +618,7 @@ suite("BenchTypes", func() {
         });
 
         test("Deep Nesting", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = deep_nesting_values.get(i);
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 // assert TestUtils.validate_encoding_with_types([candid_value], compound_types.deep_nesting, blob);
@@ -628,7 +627,7 @@ suite("BenchTypes", func() {
         });
 
         test("Wide Record", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let candid_value = wide_record_values.get(i);
                 let #ok(blob) = CandidEncoder.one_shot([candid_value], null);
                 // assert TestUtils.validate_encoding_with_types([candid_value], compound_types.wide_record, blob);
@@ -643,7 +642,7 @@ suite("BenchTypes", func() {
     // suite("decode()", func() {
 
     //     test("Nat", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.nat.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -651,7 +650,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Nat8", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.nat8.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -659,7 +658,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Nat16", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.nat16.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -667,7 +666,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Nat32", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.nat32.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -675,7 +674,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Nat64", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.nat64.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -683,7 +682,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Int", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.int.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -691,7 +690,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Int8", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.int8.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -699,7 +698,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Int16", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.int16.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -707,7 +706,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Int32", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.int32.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -715,7 +714,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Int64", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.int64.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -723,7 +722,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Float", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.float.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -731,7 +730,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Bool", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.bool.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -739,7 +738,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Text", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.text.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -747,7 +746,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Null", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let #ok(blob) = CandidEncoder.one_shot([#Null], null);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -755,7 +754,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Empty", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let #ok(blob) = CandidEncoder.one_shot([#Empty], null);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -763,7 +762,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Principal", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.principal.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -771,7 +770,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Blob", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.blob.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -779,7 +778,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Option(Nat)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.option_nat.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -787,7 +786,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Option(Text)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.option_text.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -795,7 +794,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Array(Nat8)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.array_nat8.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -803,7 +802,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Array(Text)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.array_text.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -811,7 +810,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Array(Record)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.simple_record.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, simple_record_field_names, null);
     //             assert TestUtils.validate_decoding(candid, blob, simple_record_field_names);
@@ -819,7 +818,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Record(Simple)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.simple_record.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, simple_record_field_names, null);
     //             assert TestUtils.validate_decoding(candid, blob, simple_record_field_names);
@@ -827,7 +826,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Record(Nested)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.nested_record.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, nested_record_field_names, null);
     //             assert TestUtils.validate_decoding(candid, blob, nested_record_field_names);
@@ -835,7 +834,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Tuple(Mixed)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.mixed_tuple.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -843,7 +842,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Variant(Simple)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.simple_variant.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, simple_variant_field_names, null);
     //             assert TestUtils.validate_decoding(candid, blob, simple_variant_field_names);
@@ -851,7 +850,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Variant(Complex)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.complex_variant.get(i);
     //             let variant_keys = complex_variant_field_names;
     //             let #ok(candid) = CandidDecoder.one_shot(blob, variant_keys, null);
@@ -860,7 +859,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Large Text", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.large_text.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -868,7 +867,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Large Array", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.large_array.get(i);
     //             let #ok(candid) = CandidDecoder.one_shot(blob, [], null);
     //             assert TestUtils.validate_decoding(candid, blob, []);
@@ -876,7 +875,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Deep Nesting", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.deep_nesting.get(i);
     //             let record_keys = deep_nesting_field_names;
     //             let #ok(candid) = CandidDecoder.one_shot(blob, record_keys, null);
@@ -885,7 +884,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Wide Record", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.wide_record.get(i);
     //             let record_keys = wide_record_field_names;
     //             let #ok(candid) = CandidDecoder.one_shot(blob, record_keys, null);
@@ -894,7 +893,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Recursive Structure", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let blob = encoded_blobs.deep_nesting.get(i);
     //             let record_keys = deep_nesting_field_names;
     //             let #ok(candid) = CandidDecoder.one_shot(blob, record_keys, null);
@@ -909,126 +908,126 @@ suite("BenchTypes", func() {
     // suite("encode(sans inference)", func() {
 
     //     test("Nat", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat };
     //             let #ok(blob) = CandidEncoder.one_shot([#Nat(nat_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Nat8", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat8 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Nat8(nat8_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Nat16", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat16 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Nat16(nat16_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Nat32", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat32 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Nat32(nat32_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Nat64", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat64 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Nat64(nat64_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Int", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int };
     //             let #ok(blob) = CandidEncoder.one_shot([#Int(int_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Int8", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int8 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Int8(int8_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Int16", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int16 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Int16(int16_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Int32", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int32 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Int32(int32_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Int64", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int64 };
     //             let #ok(blob) = CandidEncoder.one_shot([#Int64(int64_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Float", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.float };
     //             let #ok(blob) = CandidEncoder.one_shot([#Float(float_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Bool", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.bool };
     //             let #ok(blob) = CandidEncoder.one_shot([#Bool(bool_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Text", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.text };
     //             let #ok(blob) = CandidEncoder.one_shot([#Text(text_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Null", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.null_ };
     //             let #ok(blob) = CandidEncoder.one_shot([#Null], ?options);
     //         };
     //     });
 
     //     test("Empty", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.empty };
     //             let #ok(blob) = CandidEncoder.one_shot([#Empty], ?options);
     //         };
     //     });
 
     //     test("Principal", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.principal };
     //             let #ok(blob) = CandidEncoder.one_shot([#Principal(principal_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Blob", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.blob };
     //             let #ok(blob) = CandidEncoder.one_shot([#Blob(blob_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Option(Nat)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_nat };
     //             let #ok(blob) = CandidEncoder.one_shot(
     //                 [
@@ -1043,7 +1042,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Option(Text)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_text };
     //             let #ok(blob) = CandidEncoder.one_shot(
     //                 [
@@ -1058,7 +1057,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Array(Nat8)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_nat8 };
     //             let arr = Array.map<Nat8, Candid>(array_nat8_values.get(i), func(n) = #Nat8(n));
     //             let #ok(blob) = CandidEncoder.one_shot([#Array(arr)], ?options);
@@ -1066,7 +1065,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Array(Text)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_text };
     //             let arr = Array.map<Text, Candid>(array_text_values.get(i), func(t) = #Text(t));
     //             let #ok(blob) = CandidEncoder.one_shot([#Array(arr)], ?options);
@@ -1074,7 +1073,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Array(Record)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_record };
     //             let record_arr = Array.map<SimpleRecord, Candid>(
     //                 [simple_record_values.get(i)],
@@ -1085,7 +1084,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Record(Simple)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.simple_record };
     //             let record = simple_record_values.get(i);
     //             let #ok(blob) = CandidEncoder.one_shot(
@@ -1096,7 +1095,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Record(Nested)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.nested_record };
     //             let record = nested_record_values.get(i);
     //             let settings_candid = switch (record.settings) {
@@ -1117,7 +1116,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Tuple(Mixed)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.tuple_mixed };
     //             let (n, t, b, f) = mixed_tuple_values.get(i);
     //             let float_opt = switch (f) {
@@ -1129,7 +1128,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Variant(Simple)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_simple };
     //             let variant_candid = switch (simple_variant_values.get(i)) {
     //                 case (#success(n)) #Variant(("success", #Nat(n)));
@@ -1141,7 +1140,7 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Variant(Complex)", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_complex };
     //             let variant_candid = switch (complex_variant_values.get(i)) {
     //                 case (#user(u)) #Variant(("user", #Record([("id", #Nat(u.id)), ("name", #Text(u.name)), ("active", #Bool(u.active))])));
@@ -1163,14 +1162,14 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Large Text", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_text };
     //             let #ok(blob) = CandidEncoder.one_shot([#Text(large_text_values.get(i))], ?options);
     //         };
     //     });
 
     //     test("Large Array", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_array };
     //             let arr = Array.map<Nat, Candid>(large_array_values.get(i), func(n) = #Nat(n));
     //             let #ok(blob) = CandidEncoder.one_shot([#Array(arr)], ?options);
@@ -1178,21 +1177,21 @@ suite("BenchTypes", func() {
     //     });
 
     //     test("Deep Nesting", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting };
     //             let #ok(blob) = CandidEncoder.one_shot([deep_nesting_values.get(i)], ?options);
     //         };
     //     });
 
     //     test("Wide Record", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.wide_record };
     //             let #ok(blob) = CandidEncoder.one_shot([wide_record_values.get(i)], ?options);
     //         };
     //     });
 
     //     test("Recursive Structure", func() {
-    //         for (i in Itertools.range(0, limit)) {
+    //         for (i in Nat.range(0, limit)) {
     //             let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting };
     //             let #ok(blob) = CandidEncoder.one_shot([deep_nesting_values.get(i)], ?options);
     //         };
@@ -1205,98 +1204,98 @@ suite("BenchTypes", func() {
     suite("decode(sans inference)", func() {
 
         // test("Nat", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat.get(i), [], ?options);
         //     };
         // });
 
         // test("Nat8", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat8 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat8.get(i), [], ?options);
         //     };
         // });
 
         // test("Nat16", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat16 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat16.get(i), [], ?options);
         //     };
         // });
 
         // test("Nat32", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat32 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat32.get(i), [], ?options);
         //     };
         // });
 
         // test("Nat64", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.nat64 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.nat64.get(i), [], ?options);
         //     };
         // });
 
         // test("Int", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int.get(i), [], ?options);
         //     };
         // });
 
         // test("Int8", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int8 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int8.get(i), [], ?options);
         //     };
         // });
 
         // test("Int16", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int16 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int16.get(i), [], ?options);
         //     };
         // });
 
         // test("Int32", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int32 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int32.get(i), [], ?options);
         //     };
         // });
 
         // test("Int64", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.int64 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.int64.get(i), [], ?options);
         //     };
         // });
 
         // test("Float", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.float };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.float.get(i), [], ?options);
         //     };
         // });
 
         // test("Bool", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.bool };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.bool.get(i), [], ?options);
         //     };
         // });
 
         // test("Text", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.text };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.text.get(i), [], ?options);
         //     };
         // });
 
         // test("Null", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.null_ };
         //         let #ok(blob) = CandidEncoder.one_shot([#Null], ?options);
         //         let #ok(candid) = CandidDecoder.one_shot(blob, [], ?options);
@@ -1304,7 +1303,7 @@ suite("BenchTypes", func() {
         // });
 
         // test("Empty", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.empty };
         //         let #ok(blob) = CandidEncoder.one_shot([#Empty], ?options);
         //         let #ok(candid) = CandidDecoder.one_shot(blob, [], ?options);
@@ -1312,56 +1311,56 @@ suite("BenchTypes", func() {
         // });
 
         // test("Principal", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.principal };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.principal.get(i), [], ?options);
         //     };
         // });
 
         // test("Blob", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_primitive_types.blob };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.blob.get(i), [], ?options);
         //     };
         // });
 
         // test("Option(Nat)", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_nat };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.option_nat.get(i), [], ?options);
         //     };
         // });
 
         // test("Option(Text)", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.option_text };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.option_text.get(i), [], ?options);
         //     };
         // });
 
         // test("Array(Nat8)", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_nat8 };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.array_nat8.get(i), [], ?options);
         //     };
         // });
 
         // test("Array(Text)", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_text };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.array_text.get(i), [], ?options);
         //     };
         // });
 
         // test("Array(Record)", func() {
-        //     for (i in Itertools.range(0, limit)) {
+        //     for (i in Nat.range(0, limit)) {
         //         let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.array_record };
         //         let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.simple_record.get(i), simple_record_field_names, ?options);
         //     };
         // });
 
         test("Record(Simple)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.simple_record };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.simple_record.get(i), simple_record_field_names, ?options);
             };
@@ -1369,7 +1368,7 @@ suite("BenchTypes", func() {
 
         test("Record(Nested)", func() {
             Debug.print("formatted type: " # debug_show(?formatted_compound_types.nested_record));
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.nested_record };
                 Debug.print("Encodded blob: " # debug_show(i, encoded_blobs.nested_record.get(i)));
                 let split = CandidDecoder.split(encoded_blobs.nested_record.get(i), ?options);
@@ -1379,56 +1378,56 @@ suite("BenchTypes", func() {
         });
 
         test("Tuple(Mixed)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.tuple_mixed };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.mixed_tuple.get(i), [], ?options);
             };
         });
 
         test("Variant(Simple)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_simple };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.simple_variant.get(i), [], ?options);
             };
         });
 
         test("Variant(Complex)", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.variant_complex };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.complex_variant.get(i), [], ?options);
             };
         });
 
         test("Large Text", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_text };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.large_text.get(i), [], ?options);
             };
         });
 
         test("Large Array", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.large_array };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.large_array.get(i), [], ?options);
             };
         });
 
         test("Deep Nesting", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.deep_nesting.get(i), deep_nesting_field_names, ?options);
             };
         });
 
         test("Wide Record", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.wide_record };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.wide_record.get(i), wide_record_field_names, ?options);
             };
         });
 
         test("Recursive Structure", func() {
-            for (i in Itertools.range(0, limit)) {
+            for (i in Nat.range(0, limit)) {
                 let options = { Serde.Candid.defaultOptions with types = ?formatted_compound_types.deep_nesting };
                 let #ok(candid) = CandidDecoder.one_shot(encoded_blobs.deep_nesting.get(i), deep_nesting_field_names, ?options);
             };

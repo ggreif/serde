@@ -10,7 +10,6 @@ import Text "mo:core/Text";
 import Iter "mo:core/Iter";
 import Option "mo:core/Option";
 
-import Itertools "mo:itertools@0.2.2/Iter";
 
 import Candid "../Candid";
 import T "../Candid/Types";
@@ -105,12 +104,12 @@ module {
             };
 
             switch (
-                Itertools.findIndex(
-                    key.chars(),
-                    func(c : Char) : Bool = c == '[',
+                Iter.find<(Nat, Char)>(
+                    Iter.enumerate(key.chars()),
+                    func((_, c) : (Nat, Char)) : Bool = c == '[',
                 )
             ) {
-                case (?index) {
+                case (?(index, _)) {
                     let first_field = subText(key, 0, index);
 
                     let stripped_key = switch (Text.stripEnd(key, #text "]")) {
@@ -134,7 +133,7 @@ module {
                     };
                 };
                 case (_) {
-                    let res = insert(map, key, Itertools.empty(), value);
+                    let res = insert(map, key, Iter.empty<Text>(), value);
                     switch (res) {
                         case (#ok(newMap)) { map := newMap };
                         case (#err(msg)) return #err(msg);
@@ -187,7 +186,7 @@ module {
 
     func mapToCandid(map : NestedMap, options : T.Options) : Result<Candid, Text> {
         var i = 0;
-        let isArray = Itertools.all(
+        let isArray = Iter.all(
             Iter.sort(PureMap.keys(map), Text.compare),
             func(key : Text) : Bool {
                 let res = key == Nat.toText(i);
@@ -199,7 +198,7 @@ module {
         if (isArray) {
             let buffer = Buffer.Buffer<Candid>(PureMap.size(map));
 
-            for (i in Itertools.range(0, PureMap.size(map))) {
+            for (i in Nat.range(0, PureMap.size(map))) {
 
                 switch (PureMap.get(map, Text.compare, Nat.toText(i))) {
                     case (?(#text(text))) {

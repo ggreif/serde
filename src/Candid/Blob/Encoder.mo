@@ -21,8 +21,7 @@ import Func "mo:core/Func";
 import Char "mo:core/Char";
 import Int16 "mo:core/Int16";
 
-import Itertools "mo:itertools@0.2.2/Iter";
-import PeekableIter "mo:itertools@0.2.2/PeekableIter";
+import PeekableIter "../../PeekableIter";
 import Map "mo:core/Map";
 import ByteUtils "mo:byte-utils";
 
@@ -426,7 +425,7 @@ module {
                 };
                 case (#Tuple(tuple_types), #Record(tuple_values)) {
                     var i = 0;
-                    assert Itertools.all(
+                    assert Iter.all(
                         tuple_values.vals(),
                         func((k, v) : (Text, Any)) : Bool {
                             i += 1;
@@ -446,7 +445,7 @@ module {
                 };
                 case (#Record(record_types), #Tuple(tuple_values)) {
                     var i = 0;
-                    assert Itertools.all(
+                    assert Iter.all(
                         record_types.vals(),
                         func((k, v) : (Text, Any)) : Bool {
                             i += 1;
@@ -1331,7 +1330,7 @@ module {
             };
             case (#Tuple(tuple_types), #Record(tuple_values)) {
                 var i = 0;
-                assert Itertools.all(
+                assert Iter.all(
                     tuple_values.vals(),
                     func((k, v) : (Text, Any)) : Bool {
                         i += 1;
@@ -1356,7 +1355,7 @@ module {
 
             case (#Record(record_types), #Tuple(tuple_values)) {
                 var i = 0;
-                assert Itertools.all(
+                assert Iter.all(
                     record_types.vals(),
                     func((k, v) : (Text, Any)) : Bool {
                         i += 1;
@@ -1743,12 +1742,12 @@ module {
 
             let ?above_bottom = rows.removeLast() else return #err("trying to pop above_bottom but rows is empty");
 
-            var bottom_iter = Itertools.peekable(bottom.vals());
+            var bottom_iter = PeekableIter.fromIter(bottom.vals());
 
             let variants = Buffer.Buffer<(Text, CandidType)>(bottom.size());
             let variant_indexes = Buffer.Buffer<Nat>(bottom.size());
 
-            for ((index, parent_node) in Itertools.enumerate(above_bottom.vals())) {
+            for ((index, parent_node) in Iter.enumerate(above_bottom.vals())) {
                 let tmp_bottom_iter = PeekableIter.takeWhile(bottom_iter, func({ parent_index; key } : CandidTypeNode) : Bool = index == parent_index);
                 let { parent_index; key = parent_key } = parent_node;
 
@@ -2112,7 +2111,7 @@ module {
 
             var has_compound_type = false;
 
-            for ((index, parent_node) in Itertools.enumerate(candid_values.values())) {
+            for ((index, parent_node) in Iter.enumerate(candid_values.values())) {
 
                 switch (parent_node.type_) {
                     case (#Option(inner_type)) {

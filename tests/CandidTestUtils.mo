@@ -10,7 +10,6 @@ import Option "mo:core@2.4/Option";
 
 import { test; suite } "mo:test";
 import Map "mo:map@9.0/Map";
-import Itertools "mo:itertools@0.2.2/Iter";
 
 import Serde "../src";
 import Candid "../src/Candid";
@@ -179,8 +178,8 @@ module {
         Debug.print("decoded: " # debug_show decoded);
         Debug.print("expected: " # debug_show expected);
 
-        return Itertools.all(
-            Itertools.zip(decoded.vals(), expected.vals()),
+        return Iter.all(
+            Iter.zip(decoded.vals(), expected.vals()),
             func((a, b): (Candid, Candid)) : Bool {Candid.equal(a, b)},
         );
     };

@@ -5,7 +5,6 @@ import Char "mo:core@2.4/Char";
 import Buffer "mo:base@0.16/Buffer";
 
 import Fuzz "mo:fuzz";
-import Itertools "mo:itertools@0.2.2/Iter";
 import Nat "mo:core@2.4/Nat";
 import { test; suite } "mo:test";
 

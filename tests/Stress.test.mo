@@ -9,7 +9,6 @@ import Nat64 "mo:core@2.4/Nat64";
 import Nat "mo:core@2.4/Nat";
 
 import Fuzz "mo:fuzz";
-import Itertools "mo:itertools@0.2.2/Iter";
 import { test; suite } "mo:test";
 
 import Serde "../src";

@@ -6,7 +6,6 @@ import Iter "mo:core/Iter";
 import Text "mo:core/Text";
 import Order "mo:core/Order";
 
-import Itertools "mo:itertools@0.2.2/Iter";
 import Map "mo:core/Map";
 
 import T "../Types";
@@ -41,7 +40,7 @@ module {
     };
 
     public func is_record_tuple(record_fields : [(Text, Any)]) : Bool {
-        Itertools.all(
+        Iter.all(
             record_fields.vals(),
             func(field : (Text, Any)) : Bool {
                 Utils.text_is_number(field.0);
@@ -52,7 +51,7 @@ module {
     public func sort_candid_type(candid_type : CandidType) : CandidType {
         switch (candid_type) {
             case (#Record(fields)) {
-                let is_tuple = Itertools.all(
+                let is_tuple = Iter.all(
                     fields.vals(),
                     func(field : (Text, Any)) : Bool {
                         Utils.text_is_number(field.0);
@@ -75,7 +74,7 @@ module {
                 #Record(sorted_nested_fields);
             };
             case (#Variant(fields)) {
-                let is_tuple = Itertools.all(
+                let is_tuple = Iter.all(
                     fields.vals(),
                     func(field : (Text, CandidType)) : Bool {
                         Utils.text_is_number(field.0);
@@ -193,7 +192,7 @@ module {
     public func sort_candid_value(candid_value : Candid) : Candid {
         switch (candid_value) {
             case (#Record(fields)) {
-                let is_tuple = Itertools.all(
+                let is_tuple = Iter.all(
                     fields.vals(),
                     func(field : (Text, Any)) : Bool {
                         Utils.text_is_number(field.0);

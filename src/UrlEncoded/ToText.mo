@@ -8,7 +8,7 @@ import Principal "mo:core/Principal";
 import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 
-import itertools "mo:itertools@0.2.2/Iter";
+import Iter "mo:core/Iter";
 
 import Candid "../Candid";
 import U "../Utils";
@@ -84,7 +84,7 @@ module {
         };
         switch (candid) {
             case (#Array(arr)) {
-                for ((i, value) in itertools.enumerate(arr.vals())) {
+                for ((i, value) in Iter.enumerate(arr.vals())) {
                     let array_key = storedKey # "[" # Nat.toText(i) # "]";
                     toKeyValuePairs(pairsMap, pairsOrder, array_key, value, skip_null_fields);
                 };
