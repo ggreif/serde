@@ -1,13 +1,13 @@
 // @testmode wasi
-import Array "mo:core/Array";
-import Blob "mo:core/Blob";
-import Debug "mo:core/Debug";
-import Principal "mo:core/Principal";
-import Text "mo:core/Text";
+import Array "mo:core@2.4/Array";
+import Blob "mo:core@2.4/Blob";
+import Runtime "mo:core@2.4/Runtime";
+import Principal "mo:core@2.4/Principal";
+import Text "mo:core@2.4/Text";
 
 import { test; suite } "mo:test";
 
-import { CBOR } "../src";
+import { CBOR; Candid } "../src";
 
 suite(
     "CBOR Test",
@@ -163,5 +163,31 @@ suite(
             },
         );
 
+    },
+);
+
+suite(
+    "CBOR skip_null_fields",
+    func() {
+        test(
+            "omits null-valued record fields from the encoded CBOR map",
+            func() {
+                type Post = { text : Text; poll : ?Text; flag : ?Bool };
+
+                let keys = ["text", "poll", "flag"];
+                let post : Post = { text = "hi"; poll = null; flag = null };
+                let blob = to_candid(post);
+
+                // With the flag on, null optionals do not appear in the CBOR
+                // map. Round-tripping still yields the original record because
+                // `?T = null` decodes the same whether the field was absent or
+                // present-as-null.
+                let options = { Candid.defaultOptions with skip_null_fields = true };
+                let #ok(cbor_with_skip) = CBOR.encode(blob, keys, ?options);
+                let #ok(decoded) = CBOR.decode(cbor_with_skip, null);
+                let post_rt : ?Post = from_candid(decoded);
+                assert post_rt == ?{ text = "hi"; poll = null; flag = null };
+            },
+        );
     },
 );

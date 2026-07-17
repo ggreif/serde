@@ -1,13 +1,12 @@
-import Iter "mo:core/Iter";
-import Text "mo:core/Text";
-import Char "mo:core/Char";
-import Runtime "mo:core/Runtime";
-
-import Utils "../src/Utils";
+import Iter "mo:core@2.4/Iter";
+import Text "mo:core@2.4/Text";
+import Char "mo:core@2.4/Char";
+import Buffer "mo:base@0.16/Buffer";
 
 import Bench "mo:bench";
 import Fuzz "mo:fuzz";
-import Itertools "mo:itertools@0.2.2/Iter";
+import Nat "mo:core@2.4/Nat";
+import Runtime "mo:core/Runtime";
 
 import Serde "../src";
 import CandidEncoder "../src/Candid/Blob/Encoder";
@@ -155,11 +154,11 @@ module {
             };
         };
 
-        let buffer = Utils.Buffer.Buffer<StoreItem>(limit);
-        let candid_blobs = Utils.Buffer.Buffer<Blob>(limit);
-        let candid_buffer = Utils.Buffer.Buffer<[Serde.Candid]>(limit);
+        let buffer = Buffer.Buffer<StoreItem>(limit);
+        let candid_blobs = Buffer.Buffer<Blob>(limit);
+        let candid_buffer = Buffer.Buffer<[Serde.Candid]>(limit);
 
-        for (i in Itertools.range(0, limit)) {
+        for (i in Nat.range(0, limit)) {
             let item = new_item();
             buffer.add(item);
         };
@@ -169,21 +168,21 @@ module {
         bench.runner(
             func(row, col) = switch (row, col) {
                 case ("Motoko (to_candid(), from_candid())", "encode()") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let item = buffer.get(i);
                         let candid = to_candid (item);
                         // candid_blobs.add(candid);
                     };
                 };
                 case ("Motoko (to_candid(), from_candid())", "decode()") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let blob = candid_blobs.get(i);
                         let ?store_item : ?StoreItem = from_candid (blob);
                     };
                 };
 
                 case ("Serde: One Shot", "decode()") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let item = buffer.get(i);
                         let candid_blob = candify_store_item.to_blob(item);
                         candid_blobs.add(candid_blob);
@@ -192,7 +191,7 @@ module {
                     };
                 };
                 case ("Serde: One Shot", "encode()") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let candid = candid_buffer.get(i);
                         let res = CandidEncoder.one_shot(candid, null);
                         let #ok(blob) = res;
@@ -200,7 +199,7 @@ module {
                 };
 
                 case ("Serde: One Shot sans type inference", "decode()") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let item = buffer.get(i);
                         let candid_blob = candify_store_item.to_blob(item);
 
@@ -214,7 +213,7 @@ module {
                 };
 
                 case ("Serde: One Shot sans type inference", "encode()") {
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let candid = candid_buffer.get(i);
 
                         let options = {
@@ -231,7 +230,7 @@ module {
                     };
                     let serializer = Serde.Candid.TypedSerializer.fromBlob(candify_store_item.to_blob(buffer.get(0)), StoreItemKeys, ?options);
 
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let item = buffer.get(i);
                         let candid_blob = candify_store_item.to_blob(item);
 
@@ -244,7 +243,7 @@ module {
 
                     let serializer = Serde.Candid.TypedSerializer.new(FormattedStoreItem, null);
 
-                    for (i in Itertools.range(0, limit)) {
+                    for (i in Nat.range(0, limit)) {
                         let candid = candid_buffer.get(i);
                         let res = Serde.Candid.TypedSerializer.encode(serializer, candid);
                     };

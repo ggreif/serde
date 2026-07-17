@@ -1,10 +1,10 @@
-import Array "mo:core/Array";
-import Blob "mo:core/Blob";
-import Debug "mo:core/Debug";
-import Iter "mo:core/Iter";
-import Principal "mo:core/Principal";
-import Text "mo:core/Text";
-import PureMap "mo:core/pure/Map";
+import Array "mo:core@2.4/Array";
+import Blob "mo:core@2.4/Blob";
+import Debug "mo:core@2.4/Debug";
+import Iter "mo:core@2.4/Iter";
+import Principal "mo:core@2.4/Principal";
+import Text "mo:core@2.4/Text";
+import Map "mo:map@9.0/Map";
 
 import Arg "mo:candid/Arg";
 import Decoder "mo:candid/Decoder";
@@ -16,11 +16,11 @@ import { test; suite } "mo:test";
 import Candid "../src/Candid";
 import CandidEncoder "../src/Candid/Blob/Encoder";
 import CandidDecoder "../src/Candid/Blob/Decoder";
-import { toArgs; toArgType } "../src/libs/motoko_candid/utils";
+import { toArgs; toArgType } "helpers/motoko_candid_utils";
 
 type CandidType = Candid.CandidType;
 
-let empty_map = PureMap.empty<Text, Text>();
+let empty_map = Map.new<Text, Text>();
 
 func validate_encoding(candid_values : [Candid.Candid]) : Bool {
     Debug.print("candid_values: " # debug_show candid_values);

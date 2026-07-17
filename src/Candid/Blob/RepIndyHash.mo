@@ -16,19 +16,19 @@ import Int16 "mo:core/Int16";
 
 import T "../Types";
 import Utils "../../Utils";
-import Sha256 "mo:sha2@0.1.6/Sha256";
+import Sha256 "mo:sha2/Sha256";
 
 import ByteUtils "mo:byte-utils";
 
 module {
-    type Buffer<A> = Utils.Buffer.Buffer<A>;
+    let { Buffer } = Utils;
 
-    let { ReusableBuffer; unsigned_leb128; signed_leb128_64; Buffer } = Utils;
+    let { unsigned_leb128; signed_leb128_64 } = Utils;
 
     public func hash(candid_value : T.Candid) : Blob {
         // let buffer = ReusableBuffer<Nat8>(100);
         let buffer = Buffer.Buffer<Nat8>(100);
-        let sha256 = Sha256.Digest(#sha256);
+        let sha256 = Sha256.new(#sha256);
 
         candid_hash(buffer, sha256, candid_value);
     };
@@ -69,10 +69,7 @@ module {
             };
 
             case (#Float(f64)) {
-                let bytes = ByteUtils.LE.fromFloat(f64);
-                for (byte in bytes.vals()) {
-                    buffer.add(byte);
-                };
+                ByteUtils.Buffer.LE.addFloat(buffer, f64);
             };
             case (#Bool(b)) {
                 buffer.add(if (b) (1) else (0));
@@ -91,7 +88,7 @@ module {
 
             };
             case (#Blob(b)) {
-                sha256.writeBlob(b);
+                Sha256.writeBlob(sha256, b);
             };
             case (#Principal(p)) {
 
@@ -113,7 +110,7 @@ module {
                     },
                 );
 
-                for (hash in hashes.vals()) {
+                for (hash in hashes.values()) {
                     let hash_bytes = Blob.toArray(hash);
                     for (byte in hash_bytes.vals()) {
                         buffer.add(byte);
@@ -143,9 +140,7 @@ module {
                     hashes.add(concatenated);
                 };
 
-                let sorted_hashes = Array.sort(hashes.toArray(), Blob.compare);
-
-                for (hash in sorted_hashes.vals()) {
+                for (hash in Array.sort(hashes.toArray(), Blob.compare).values()) {
                     let hash_bytes = Blob.toArray(hash);
                     for (byte in hash_bytes.vals()) {
                         buffer.add(byte);
@@ -156,11 +151,11 @@ module {
             case (candid) Runtime.trap("oops: " # debug_show (candid));
         };
 
-        sha256.writeIter(buffer.vals());
+        Sha256.writeIter(sha256, buffer.vals());
         buffer.clear();
 
-        let resulting_hash = sha256.sum();
-        sha256.reset(); // !important to reset the sha256 instance for future use
+        let resulting_hash = Sha256.sum(sha256);
+        Sha256.reset(sha256); // !important to reset the sha256 instance for future use
 
         resulting_hash;
 

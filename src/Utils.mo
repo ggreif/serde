@@ -15,7 +15,6 @@ import Int64 "mo:core/Int64";
 import Blob "mo:core/Blob";
 import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
-import Itertools "mo:itertools@0.2.2/Iter";
 
 import ByteUtils "mo:byte-utils";
 
@@ -72,7 +71,7 @@ module {
 
     public func concatKeys(keys : [[Text]]) : [Text] {
         Iter.toArray(
-            Itertools.flattenArray(keys)
+            Iter.flatten<Text>(Iter.map<[Text], Iter.Iter<Text>>(keys.values(), func(a : [Text]) : Iter.Iter<Text> = a.values()))
         );
     };
 
@@ -96,9 +95,9 @@ module {
     };
 
     public func subText(text : Text, start : Nat, end : Nat) : Text {
-        Itertools.toText(
-            Itertools.skip(
-                Itertools.take(text.chars(), end),
+        Text.fromIter(
+            Iter.drop(
+                Iter.take(text.chars(), end),
                 start,
             )
         );
@@ -120,7 +119,7 @@ module {
     };
 
     public func isHash(key : Text) : Bool {
-        Itertools.all(
+        Iter.all(
             key.chars(),
             func(c : Char) : Bool {
                 c == '_' or Char.isDigit(c);
@@ -129,7 +128,7 @@ module {
     };
 
     public func text_to_nat32(text : Text) : Nat32 {
-        Itertools.fold(
+        Iter.foldLeft(
             text.chars(),
             0 : Nat32,
             func(acc : Nat32, c : Char) : Nat32 {
@@ -143,7 +142,7 @@ module {
     };
 
     public func text_to_nat(text : Text) : Nat {
-        Itertools.fold(
+        Iter.foldLeft(
             text.chars(),
             0 : Nat,
             func(acc : Nat, c : Char) : Nat {
@@ -157,7 +156,7 @@ module {
     };
 
     public func text_is_number(text : Text) : Bool {
-        Itertools.all(
+        Iter.all(
             text.chars(),
             func(c : Char) : Bool {
                 Char.isDigit(c) or c == '_';

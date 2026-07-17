@@ -6,8 +6,7 @@ import Iter "mo:core/Iter";
 import Text "mo:core/Text";
 import Order "mo:core/Order";
 
-import Itertools "mo:itertools@0.2.2/Iter";
-import PureMap "mo:core/pure/Map";
+import Map "mo:core/Map";
 
 import T "../Types";
 import Utils "../../Utils";
@@ -15,10 +14,9 @@ import Utils "../../Utils";
 module {
 
     type Result<A, B> = Result.Result<A, B>;
-    type Buffer<A> = Utils.Buffer.Buffer<A>;
     type Iter<A> = Iter.Iter<A>;
     type Hash = Nat32;
-    type Map<K, V> = PureMap.Map<K, V>;
+    type Map<K, V> = Map.Map<K, V>;
     type Order = Order.Order;
 
     type Candid = T.Candid;
@@ -42,7 +40,7 @@ module {
     };
 
     public func is_record_tuple(record_fields : [(Text, Any)]) : Bool {
-        Itertools.all(
+        Iter.all(
             record_fields.vals(),
             func(field : (Text, Any)) : Bool {
                 Utils.text_is_number(field.0);
@@ -53,7 +51,7 @@ module {
     public func sort_candid_type(candid_type : CandidType) : CandidType {
         switch (candid_type) {
             case (#Record(fields)) {
-                let is_tuple = Itertools.all(
+                let is_tuple = Iter.all(
                     fields.vals(),
                     func(field : (Text, Any)) : Bool {
                         Utils.text_is_number(field.0);
@@ -76,7 +74,7 @@ module {
                 #Record(sorted_nested_fields);
             };
             case (#Variant(fields)) {
-                let is_tuple = Itertools.all(
+                let is_tuple = Iter.all(
                     fields.vals(),
                     func(field : (Text, CandidType)) : Bool {
                         Utils.text_is_number(field.0);
@@ -131,7 +129,7 @@ module {
                         let field_key = fields[i].0;
                         let field_value = fields[i].1;
 
-                        let new_key = switch (PureMap.get(renaming_map, Text.compare, field_key)) {
+                        let new_key = switch (Map.get(renaming_map, Text.compare, field_key)) {
                             case (?new_key) new_key;
                             case (_) field_key;
                         };
@@ -159,7 +157,7 @@ module {
                         let field_key = fields[i].0;
                         let field_value = fields[i].1;
 
-                        let new_key = switch (PureMap.get(renaming_map, Text.compare, field_key)) {
+                        let new_key = switch (Map.get(renaming_map, Text.compare, field_key)) {
                             case (?new_key) new_key;
                             case (_) field_key;
                         };
@@ -194,7 +192,7 @@ module {
     public func sort_candid_value(candid_value : Candid) : Candid {
         switch (candid_value) {
             case (#Record(fields)) {
-                let is_tuple = Itertools.all(
+                let is_tuple = Iter.all(
                     fields.vals(),
                     func(field : (Text, Any)) : Bool {
                         Utils.text_is_number(field.0);

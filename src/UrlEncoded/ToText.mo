@@ -2,14 +2,13 @@ import Result "mo:core/Result";
 import Nat "mo:core/Nat";
 import Nat32 "mo:core/Nat32";
 import Text "mo:core/Text";
-import PureMap "mo:core/pure/Map";
-import Iter "mo:core/Iter";
+import Map "mo:core/Map";
 import Float "mo:core/Float";
 import Principal "mo:core/Principal";
 import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 
-import itertools "mo:itertools@0.2.2/Iter";
+import Iter "mo:core/Iter";
 
 import Candid "../Candid";
 import U "../Utils";
@@ -17,45 +16,53 @@ import Utils "../Utils";
 import CandidType "../Candid/Types";
 
 module {
+    let { Buffer } = Utils;
     type Candid = Candid.Candid;
-    type Map<K, V> = PureMap.Map<K, V>;
     type Result<K, V> = Result.Result<K, V>;
 
     /// Converts a serialized Candid blob to a URL-Encoded string.
     public func toText(blob : Blob, keys : [Text], options : ?CandidType.Options) : Result<Text, Text> {
         let res = Candid.decode(blob, keys, options);
         let #ok(candid) = res else return Utils.send_error(res);
-        fromCandid(candid[0]);
+
+        let skip_null_fields = switch (options) {
+            case (?opts) opts.skip_null_fields;
+            case null false;
+        };
+        fromCandidWith(candid[0], skip_null_fields);
     };
 
-    /// Convert a Candid Record to a URL-Encoded string.
-    public func fromCandid(candid : Candid) : Result<Text, Text> {
+    /// Convert a Candid Record to a URL-Encoded string (default: keep null fields as `key=null`).
+    public func fromCandid(candid : Candid) : Result<Text, Text> =
+        fromCandidWith(candid, false);
+
+    /// Same as [fromCandid] but with explicit null-skip behaviour.
+    public func fromCandidWith(candid : Candid, skip_null_fields : Bool) : Result<Text, Text> {
 
         let records = switch (candid) {
             case (#Record(records) or #Map(records)) records;
             case (_) return #err("invalid type: the value must be a record");
         };
 
-        var pairs = PureMap.empty<Text, Text>();
+        let pairsMap = Map.empty<Text, Text>();
+        let pairsOrder = Buffer.Buffer<Text>(16);
 
         for ((key, value) in records.vals()) {
-            pairs := toKeyValuePairs(pairs, key, value);
+            toKeyValuePairs(pairsMap, pairsOrder, key, value, skip_null_fields);
         };
 
         var url_encoding = "";
 
-        let entries = Iter.map(
-            PureMap.entries(pairs),
-            func((key, value) : (Text, Text)) : Text {
-                key # "=" # value;
-            },
-        );
-
-        for (t in entries) {
+        for (key in pairsOrder.vals()) {
+            let value = switch (Map.get(pairsMap, Text.compare, key)) {
+                case (?v) v;
+                case (null) "";
+            };
+            let t = key # "=" # value;
             url_encoding := if (url_encoding == "") {
                 t;
             } else {
-                t # "&" # url_encoding;
+                url_encoding # "&" # t;
             };
         };
 
@@ -63,58 +70,64 @@ module {
     };
 
     func toKeyValuePairs(
-        pairs : Map<Text, Text>,
+        pairsMap : Map.Map<Text, Text>,
+        pairsOrder : Buffer.Buffer<Text>,
         storedKey : Text,
         candid : Candid,
-    ) : Map<Text, Text> {
+        skip_null_fields : Bool,
+    ) {
+        func set(key : Text, value : Text) {
+            if (Map.get(pairsMap, Text.compare, key) == null) {
+                pairsOrder.add(key);
+            };
+            Map.add(pairsMap, Text.compare, key, value);
+        };
         switch (candid) {
             case (#Array(arr)) {
-                var result = pairs;
-                for ((i, value) in itertools.enumerate(arr.vals())) {
+                for ((i, value) in Iter.enumerate(arr.vals())) {
                     let array_key = storedKey # "[" # Nat.toText(i) # "]";
-                    result := toKeyValuePairs(result, array_key, value);
+                    toKeyValuePairs(pairsMap, pairsOrder, array_key, value, skip_null_fields);
                 };
-                result;
             };
 
             case (#Record(records) or #Map(records)) {
-                var result = pairs;
                 for ((key, value) in records.vals()) {
                     let record_key = storedKey # "[" # key # "]";
-                    result := toKeyValuePairs(result, record_key, value);
+                    toKeyValuePairs(pairsMap, pairsOrder, record_key, value, skip_null_fields);
                 };
-                result;
             };
 
             case (#Variant(key, val)) {
                 let variant_key = storedKey # "#" # key;
-                toKeyValuePairs(pairs, variant_key, val);
+                toKeyValuePairs(pairsMap, pairsOrder, variant_key, val, skip_null_fields);
             };
 
             // TODO: convert blob to hex
-            // case (#Blob(blob)) PureMap.add(pairs, Text.compare, storedKey, "todo: Blob.toText(blob)");
+            // case (#Blob(blob)) set(storedKey, "todo: Blob.toText(blob)");
 
-            case (#Option(p)) toKeyValuePairs(pairs, storedKey, p);
-            case (#Text(t)) PureMap.add(pairs, Text.compare, storedKey, t);
-            case (#Principal(p)) PureMap.add(pairs, Text.compare, storedKey, Principal.toText(p));
+            case (#Option(p)) toKeyValuePairs(pairsMap, pairsOrder, storedKey, p, skip_null_fields);
+            case (#Text(t)) set(storedKey, t);
+            case (#Principal(p)) set(storedKey, Principal.toText(p));
 
-            case (#Nat(n)) PureMap.add(pairs, Text.compare, storedKey, Nat.toText(n));
-            case (#Nat8(n)) PureMap.add(pairs, Text.compare, storedKey, debug_show (n));
-            case (#Nat16(n)) PureMap.add(pairs, Text.compare, storedKey, debug_show (n));
-            case (#Nat32(n)) PureMap.add(pairs, Text.compare, storedKey, Nat32.toText(n));
-            case (#Nat64(n)) PureMap.add(pairs, Text.compare, storedKey, debug_show (n));
+            case (#Nat(n)) set(storedKey, Nat.toText(n));
+            case (#Nat8(n)) set(storedKey, debug_show (n));
+            case (#Nat16(n)) set(storedKey, debug_show (n));
+            case (#Nat32(n)) set(storedKey, Nat32.toText(n));
+            case (#Nat64(n)) set(storedKey, debug_show (n));
 
-            case (#Int(n)) PureMap.add(pairs, Text.compare, storedKey, U.stripStart(debug_show (n), #char '+'));
-            case (#Int8(n)) PureMap.add(pairs, Text.compare, storedKey, U.stripStart(debug_show (n), #char '+'));
-            case (#Int16(n)) PureMap.add(pairs, Text.compare, storedKey, U.stripStart(debug_show (n), #char '+'));
-            case (#Int32(n)) PureMap.add(pairs, Text.compare, storedKey, U.stripStart(debug_show (n), #char '+'));
-            case (#Int64(n)) PureMap.add(pairs, Text.compare, storedKey, U.stripStart(debug_show (n), #char '+'));
+            case (#Int(n)) set(storedKey, U.stripStart(debug_show (n), #char '+'));
+            case (#Int8(n)) set(storedKey, U.stripStart(debug_show (n), #char '+'));
+            case (#Int16(n)) set(storedKey, U.stripStart(debug_show (n), #char '+'));
+            case (#Int32(n)) set(storedKey, U.stripStart(debug_show (n), #char '+'));
+            case (#Int64(n)) set(storedKey, U.stripStart(debug_show (n), #char '+'));
 
-            case (#Float(n)) PureMap.add(pairs, Text.compare, storedKey, Float.toText(n));
-            case (#Null) PureMap.add(pairs, Text.compare, storedKey, "null");
-            case (#Empty) PureMap.add(pairs, Text.compare, storedKey, "");
+            case (#Float(n)) set(storedKey, Float.toText(n));
+            // With `skip_null_fields`, omit the pair entirely rather than
+            // emitting `key=null` — matches the JSON/CBOR encoders.
+            case (#Null) if (not skip_null_fields) set(storedKey, "null");
+            case (#Empty) set(storedKey, "");
 
-            case (#Bool(b)) PureMap.add(pairs, Text.compare, storedKey, debug_show (b));
+            case (#Bool(b)) set(storedKey, debug_show (b));
 
             case (_) Runtime.trap(debug_show candid # " is not supported by URL-Encoded");
 

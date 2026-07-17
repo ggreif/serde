@@ -1,4 +1,5 @@
-import Blob "mo:core/Blob";
+import Blob "mo:core@2.4/Blob";
+import Debug "mo:core@2.4/Debug";
 
 import { test; suite } "mo:test";
 

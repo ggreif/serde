@@ -1,14 +1,14 @@
 // @testmode wasi
-import Iter "mo:core/Iter";
-import Debug "mo:core/Debug";
-import Text "mo:core/Text";
-import Char "mo:core/Char";
-import Nat64 "mo:core/Nat64";
-
-import Utils "../src/Utils";
+import Iter "mo:core@2.4/Iter";
+import Debug "mo:core@2.4/Debug";
+import Runtime "mo:core@2.4/Runtime";
+import Text "mo:core@2.4/Text";
+import Char "mo:core@2.4/Char";
+import Buffer "mo:base@0.16/Buffer";
+import Nat64 "mo:core@2.4/Nat64";
+import Nat "mo:core@2.4/Nat";
 
 import Fuzz "mo:fuzz";
-import Itertools "mo:itertools@0.2.2/Iter";
 import { test; suite } "mo:test";
 
 import Serde "../src";
@@ -176,11 +176,11 @@ func new_item() : StoreItem {
 
 let store_item_keys = ["name", "store", "customer_reviews", "username", "rating", "comment", "available_sizes", "xs", "s", "m", "l", "xl", "color_options", "name", "hex", "price", "in_stock", "address", "contact", "email", "phone"];
 
-let candid_buffer = Utils.Buffer.Buffer<[Serde.Candid]>(limit);
-let store_items = Utils.Buffer.Buffer<StoreItem>(limit);
+let candid_buffer = Buffer.Buffer<[Serde.Candid]>(limit);
+let store_items = Buffer.Buffer<StoreItem>(limit);
 
-let candid_buffer_with_types = Utils.Buffer.Buffer<[Serde.Candid]>(limit);
-let store_items_with_types = Utils.Buffer.Buffer<StoreItem>(limit);
+let candid_buffer_with_types = Buffer.Buffer<[Serde.Candid]>(limit);
+let store_items_with_types = Buffer.Buffer<StoreItem>(limit);
 
 // Roundtrip test function that takes a schema, value generator, and comparison function
 func roundtripTest<T>(
@@ -191,11 +191,11 @@ func roundtripTest<T>(
     keys : [Text],
     iterations : Nat,
 ) : () {
-    let values = Utils.Buffer.Buffer<T>(iterations);
-    let candid_values = Utils.Buffer.Buffer<[Serde.Candid]>(iterations);
+    let values = Buffer.Buffer<T>(iterations);
+    let candid_values = Buffer.Buffer<[Serde.Candid]>(iterations);
 
     // Phase 1: Generate values and decode them to Candid
-    for (i in Itertools.range(0, iterations)) {
+    for (i in Nat.range(0, iterations)) {
         let value = valueGenerator();
         values.add(value);
         let blob = toBlobFn(value);
@@ -204,7 +204,7 @@ func roundtripTest<T>(
     };
 
     // Phase 2: Encode Candid values back to blobs and verify roundtrip
-    for (i in Itertools.range(0, iterations)) {
+    for (i in Nat.range(0, iterations)) {
         let candid = candid_values.get(i);
         let originalValue = values.get(i);
 
@@ -222,7 +222,7 @@ suite(
         test(
             "decode()",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let item = new_item();
                     store_items.add(item);
                     let candid_blob = candify_store_item.to_blob(item);
@@ -234,7 +234,7 @@ suite(
         test(
             "encode()",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let candid = candid_buffer.get(i);
                     let res = LegacyCandidEncoder.encode(candid, null);
                     let #ok(blob) = res;
@@ -248,7 +248,7 @@ suite(
         test(
             "decode() with types",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let item = new_item();
                     store_items_with_types.add(item);
                     let candid_blob = candify_store_item.to_blob(item);
@@ -261,7 +261,7 @@ suite(
         test(
             "encode() with types",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let candid = candid_buffer_with_types.get(i);
                     let res = LegacyCandidEncoder.encode(candid, ?{ Serde.Candid.defaultOptions with types = ?FormattedStoreItem });
                     let #ok(blob) = res;

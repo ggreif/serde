@@ -1,12 +1,11 @@
 // @testmode wasi
-import Iter "mo:core/Iter";
-import Text "mo:core/Text";
-import Char "mo:core/Char";
-
-import Utils "../src/Utils";
+import Iter "mo:core@2.4/Iter";
+import Text "mo:core@2.4/Text";
+import Char "mo:core@2.4/Char";
+import Buffer "mo:base@0.16/Buffer";
 
 import Fuzz "mo:fuzz";
-import Itertools "mo:itertools@0.2.2/Iter";
+import Nat "mo:core@2.4/Nat";
 import { test; suite } "mo:test";
 
 import Serde "../src";
@@ -156,11 +155,11 @@ func new_item() : StoreItem {
 
 let store_item_keys = ["name", "store", "customer_reviews", "username", "rating", "comment", "available_sizes", "xs", "s", "m", "l", "xl", "color_options", "name", "hex", "price", "in_stock", "address", "contact", "email", "phone"];
 
-let candid_buffer = Utils.Buffer.Buffer<[Serde.Candid]>(limit);
-let store_items = Utils.Buffer.Buffer<StoreItem>(limit);
+let candid_buffer = Buffer.Buffer<[Serde.Candid]>(limit);
+let store_items = Buffer.Buffer<StoreItem>(limit);
 
-let candid_buffer_with_types = Utils.Buffer.Buffer<[Serde.Candid]>(limit);
-let store_items_with_types = Utils.Buffer.Buffer<StoreItem>(limit);
+let candid_buffer_with_types = Buffer.Buffer<[Serde.Candid]>(limit);
+let store_items_with_types = Buffer.Buffer<StoreItem>(limit);
 
 suite(
     "Serde.Candid",
@@ -168,7 +167,7 @@ suite(
         test(
             "decode()",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let item = new_item();
                     store_items.add(item);
                     let candid_blob = candify_store_item.to_blob(item);
@@ -180,7 +179,7 @@ suite(
         test(
             "encode()",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let candid = candid_buffer.get(i);
                     let res = LegacyCandidEncoder.encode(candid, null);
                     let #ok(blob) = res;
@@ -192,7 +191,7 @@ suite(
         test(
             "decode() with types",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let item = new_item();
                     store_items_with_types.add(item);
                     let candid_blob = candify_store_item.to_blob(item);
@@ -205,7 +204,7 @@ suite(
         test(
             "encode() with types",
             func() {
-                for (i in Itertools.range(0, limit)) {
+                for (i in Nat.range(0, limit)) {
                     let candid = candid_buffer_with_types.get(i);
                     let res = LegacyCandidEncoder.encode(candid, ?{ Serde.Candid.defaultOptions with types = ?FormattedStoreItem });
                     let #ok(blob) = res;
