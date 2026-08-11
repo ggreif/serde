@@ -1,7 +1,7 @@
 // @testmode wasi
-import Map "mo:core@2.4/pure/Map";
-import Text "mo:core@2.4/Text";
-import Debug "mo:core@2.4/Debug";
+import Map "mo:core/pure/Map";
+import Text "mo:core/Text";
+import Debug "mo:core/Debug";
 
 import { test; suite } "mo:test";
 

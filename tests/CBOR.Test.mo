@@ -1,9 +1,9 @@
 // @testmode wasi
-import Array "mo:core@2.4/Array";
-import Blob "mo:core@2.4/Blob";
-import Runtime "mo:core@2.4/Runtime";
-import Principal "mo:core@2.4/Principal";
-import Text "mo:core@2.4/Text";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Runtime "mo:core/Runtime";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
 
 import { test; suite } "mo:test";
 

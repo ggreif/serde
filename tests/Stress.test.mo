@@ -1,12 +1,12 @@
 // @testmode wasi
-import Iter "mo:core@2.4/Iter";
-import Debug "mo:core@2.4/Debug";
-import Runtime "mo:core@2.4/Runtime";
-import Text "mo:core@2.4/Text";
-import Char "mo:core@2.4/Char";
+import Iter "mo:core/Iter";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import Text "mo:core/Text";
+import Char "mo:core/Char";
 import Buffer "mo:base@0.16/Buffer";
-import Nat64 "mo:core@2.4/Nat64";
-import Nat "mo:core@2.4/Nat";
+import Nat64 "mo:core/Nat64";
+import Nat "mo:core/Nat";
 
 import Fuzz "mo:fuzz";
 import { test; suite } "mo:test";

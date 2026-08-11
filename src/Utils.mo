@@ -16,7 +16,7 @@ import Blob "mo:core/Blob";
 import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 
-import ByteUtils "mo:byte-utils";
+import ByteUtils "../submodules/ByteUtils/src";
 
 module {
 

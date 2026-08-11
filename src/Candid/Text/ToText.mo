@@ -1,7 +1,7 @@
-import Float "mo:core@2.4/Float";
-import Array "mo:core@2.4/Array";
-import Text "mo:core@2.4/Text";
-import Principal "mo:core@2.4/Principal";
+import Float "mo:core/Float";
+import Array "mo:core/Array";
+import Text "mo:core/Text";
+import Principal "mo:core/Principal";
 
 import PeekableIter "../../PeekableIter";
 
