@@ -1,11 +1,11 @@
-import Iter "mo:core@2.4/Iter";
-import Text "mo:core@2.4/Text";
-import Char "mo:core@2.4/Char";
+import Iter "mo:core/Iter";
+import Text "mo:core/Text";
+import Char "mo:core/Char";
 import Buffer "mo:base@0.16/Buffer";
 
 import Bench "mo:bench";
 import Fuzz "mo:fuzz";
-import Nat "mo:core@2.4/Nat";
+import Nat "mo:core/Nat";
 import Runtime "mo:core/Runtime";
 
 import Serde "../src";

@@ -18,7 +18,7 @@ import T "../Types";
 import Utils "../../Utils";
 import Sha256 "mo:sha2/Sha256";
 
-import ByteUtils "mo:byte-utils";
+import ByteUtils "../../../submodules/ByteUtils/src";
 
 module {
     let { Buffer } = Utils;

@@ -1,6 +1,6 @@
 // @testmode wasi
-import Debug "mo:core@2.4/Debug";
-import Text "mo:core@2.4/Text";
+import Debug "mo:core/Debug";
+import Text "mo:core/Text";
 
 import { test; suite } "mo:test";
 

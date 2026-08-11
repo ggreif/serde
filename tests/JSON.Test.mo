@@ -1,10 +1,10 @@
 // @testmode wasi
-import Blob "mo:core@2.4/Blob";
-import Debug "mo:core@2.4/Debug";
-import Iter "mo:core@2.4/Iter";
-import Nat "mo:core@2.4/Nat";
-import Runtime "mo:core@2.4/Runtime";
-import Text "mo:core@2.4/Text";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
+import Runtime "mo:core/Runtime";
+import Text "mo:core/Text";
 
 import { test; suite } "mo:test";
 

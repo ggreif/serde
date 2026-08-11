@@ -1,15 +1,12 @@
 {
   "version": 3,
-  "mopsTomlDepsHash": "480e1bfa4f7cf5c3edaf0189e12bbb158180c037c80ad01fff299f6cf2f212fa",
+  "mopsTomlDepsHash": "4187325e327f2b1daf29d2d4888c856890686a291319350f9d6520b5647ef67a",
   "deps": {
     "core": "2.4.0",
     "xtended-numbers": "2.3.0",
     "core@1": "1.0.0",
     "buffer@0": "0.1.0",
     "base@0": "0.16.0",
-    "byte-utils": "0.2.0",
-    "core@2.4": "2.4.0",
-    "xtended-numbers@2.3": "2.3.0",
     "cbor@4.1.0": "4.1.0",
     "xtended-numbers@2": "2.3.0",
     "sha2": "0.2.5",
@@ -204,12 +201,6 @@
       "base@0.16.0/src/TrieMap.mo": "f09aab78476ffd158f8ab789e0692ad61aa9b1f4ac6ff3af30cdac5f5c30a7e4",
       "base@0.16.0/src/Trie.mo": "3ca67f2527afaf5e663bd7b227384d0b20d0ea0cfc7c532e5d95a625c0d0d6bb",
       "base@0.16.0/src/TrieSet.mo": "9c8c1821582b344de6f3910f417527ec0b565876eb2d9da09455af05117ed45a"
-    },
-    "byte-utils@0.2.0": {
-      "byte-utils@0.2.0/src/lib.mo": "e84164249d58024c2f9f7f169b8956717d2fd117c0eb4e54c8fce8c5befdf262",
-      "byte-utils@0.2.0/README.md": "d6eba36239a6a45227789263da130c4ca0196f490e8b53adbcff6fe729ec11bf",
-      "byte-utils@0.2.0/mops.toml": "bc681f5fe3c334cd1f06811a4dde30d4a31af0914de64c06bb6c00e072e04f4e",
-      "byte-utils@0.2.0/LICENSE": "9f1803a1a78528e5114ac59ec2e0d76e65c60d50237feed2a43eb6d27eb22185"
     },
     "cbor@4.1.0": {
       "cbor@4.1.0/src/Types.mo": "8f22e4cc001405e941327100b47d6ecf46c70b8504cbf8017286fe4661b57bdf",

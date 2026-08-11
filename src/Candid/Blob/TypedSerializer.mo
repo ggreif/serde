@@ -13,7 +13,7 @@ import Debug "mo:core/Debug";
 
 import Map "mo:core/Map";
 import Set "mo:core/Set";
-import ByteUtils "mo:byte-utils";
+import ByteUtils "../../../submodules/ByteUtils/src";
 
 import T "../Types";
 import CandidUtils "CandidUtils";
