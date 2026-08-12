@@ -1,13 +1,13 @@
 // @testmode wasi
-import Debug "mo:core@2.4/Debug";
-import Iter "mo:core@2.4/Iter";
+import Debug "mo:core/Debug";
+import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
 
 import { test; suite } "mo:test";
 
 import UrlEncoded "../src/UrlEncoded";
 import Candid "../src/Candid";
-import Text "mo:core@2.4/Text";
+import Text "mo:core/Text";
 
 type User = {
     name : Text;

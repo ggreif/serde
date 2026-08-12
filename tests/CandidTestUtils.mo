@@ -1,12 +1,12 @@
 // @testmode wasi
-import Array "mo:core@2.4/Array";
-import Blob "mo:core@2.4/Blob";
-import Debug "mo:core@2.4/Debug";
-import Iter "mo:core@2.4/Iter";
-import Nat "mo:core@2.4/Nat";
-import Principal "mo:core@2.4/Principal";
-import Result "mo:core@2.4/Result";
-import Option "mo:core@2.4/Option";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
+import Principal "mo:core/Principal";
+import Result "mo:core/Result";
+import Option "mo:core/Option";
 
 import { test; suite } "mo:test";
 import Map "mo:map@9.0/Map";

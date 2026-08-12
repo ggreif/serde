@@ -23,7 +23,7 @@ import Int16 "mo:core/Int16";
 
 import PeekableIter "../../PeekableIter";
 import Map "mo:core/Map";
-import ByteUtils "mo:byte-utils";
+import ByteUtils "../../../submodules/ByteUtils/src";
 
 import T "../Types";
 import Utils "../../Utils";
