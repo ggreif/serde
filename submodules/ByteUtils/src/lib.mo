@@ -15,7 +15,7 @@ import Int "mo:core/Int";
 import Nat "mo:core/Nat";
 import Runtime "mo:core/Runtime";
 
-import FloatX "mo:xtended-numbers/FloatX";
+import FloatX "../../xtended-numbers/src/FloatX";
 
 module ByteUtils {
     /// An iterator of bytes.

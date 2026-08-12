@@ -8,11 +8,11 @@ import Nat64 "mo:core/Nat64";
 import Result "mo:core/Result";
 import Principal "mo:core/Principal";
 
-import CBOR_Types "mo:cbor@4.1.0/Types";
-import CBOR_Encoder "mo:cbor@4.1.0/Encoder";
-import CBOR_Decoder "mo:cbor@4.1.0/Decoder";
-import NatX "mo:xtended-numbers/NatX";
-import FloatX "mo:xtended-numbers/FloatX";
+import CBOR_Types "../../submodules/cbor/src/Types";
+import CBOR_Encoder "../../submodules/cbor/src/Encoder";
+import CBOR_Decoder "../../submodules/cbor/src/Decoder";
+import NatX "../../submodules/xtended-numbers/src/NatX";
+import FloatX "../../submodules/xtended-numbers/src/FloatX";
 
 import Candid "../Candid";
 import CandidType "../Candid/Types";

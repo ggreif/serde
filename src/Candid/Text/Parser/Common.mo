@@ -6,7 +6,7 @@ import Text "mo:core/Text";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";
-import NatX "mo:xtended-numbers/NatX";
+import NatX "../../../../submodules/xtended-numbers/src/NatX";
 
 import Candid "../../Types";
 
