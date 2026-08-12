@@ -10,6 +10,9 @@ license = "MIT"
 core = "2.4.0"
 "xtended-numbers" = "2.3.0"
 "cbor@4.1.0" = "4.1.0"
+# Vendored, de-based + core@2 (submodules/buffer). Root declarations win in mops
+# resolution, so cbor/xtended-numbers resolve `mo:buffer@0/...` to this tree.
+"buffer@0" = "./submodules/buffer"
 sha2 = "0.2.5"
 
 [dev-dependencies]
