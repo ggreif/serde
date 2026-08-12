@@ -1,11 +1,11 @@
 {
   "version": 3,
-  "mopsTomlDepsHash": "4187325e327f2b1daf29d2d4888c856890686a291319350f9d6520b5647ef67a",
+  "mopsTomlDepsHash": "7db307a3fa4026568ac278f4fc8c0b58d2d3ea72bcb5ddcdd061a40a09848951",
   "deps": {
     "core": "2.4.0",
     "xtended-numbers": "2.3.0",
     "core@1": "1.0.0",
-    "buffer@0": "0.1.0",
+    "buffer@0": "/Users/ggreif/serde/submodules/buffer",
     "base@0": "0.16.0",
     "cbor@4.1.0": "4.1.0",
     "xtended-numbers@2": "2.3.0",
@@ -140,12 +140,6 @@
       "core@1.0.0/src/pure/Map.mo": "33f63f1878f0474c6669363dde9ff6808ac992fa6353a7051b9a0c0cc7ee8f6c",
       "core@1.0.0/src/pure/Set.mo": "b547cd545ef688f349cd974ccd5c9cfcb11bdc67e8f0ab7d87734ff0f95193c5",
       "core@1.0.0/src/pure/RealTimeQueue.mo": "6e1f9a60d862f0bd214c205f70c98313ebc741f63ab62d3292c0d92d871c100f"
-    },
-    "buffer@0.1.0": {
-      "buffer@0.1.0/LICENSE": "d29036f192ca54721796c4a5abda5980dd026c43b08cad2dac004d22f5bcde50",
-      "buffer@0.1.0/README.md": "997ca71aafccabf4da41269d547e06d7a3e53f55418881178dd369df3eeed7f4",
-      "buffer@0.1.0/mops.toml": "29b478ced5ddf863323252cccfa938e0183946e9d94bf01d8ff7a7dfd1ffcb1a",
-      "buffer@0.1.0/src/lib.mo": "12ab7e7d3b8f14da06c807aae707d6dae412dc4c447b8e0ee2e1f8e8f1067a48"
     },
     "base@0.16.0": {
       "base@0.16.0/src/Blob.mo": "61a48166c8bdc4cf1220fd11f645566699fa064a2b2aa8174388aae4eef6a532",
