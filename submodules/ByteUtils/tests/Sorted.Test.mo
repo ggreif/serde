@@ -15,14 +15,25 @@ import Nat16 "mo:core/Nat16";
 import Nat32 "mo:core/Nat32";
 import Bool "mo:core/Bool";
 
+import Int "mo:core/Int";
+import Map "mo:core/Map";
+
 import { test; suite } "mo:test";
-import Itertools "mo:itertools/Iter";
-import BpTree "mo:augmented-btrees/BpTree";
-import Cmp "mo:augmented-btrees/Cmp";
 
 import Fuzz "mo:fuzz";
 
 import ByteUtils "../src";
+
+// `core` has no `Iter.equal`; this is the `Itertools.equal` it replaces.
+func iterEqual<T>(a : Iter.Iter<T>, b : Iter.Iter<T>, eq : (T, T) -> Bool) : Bool {
+    loop {
+        switch (a.next(), b.next()) {
+            case (null, null) { return true };
+            case (?x, ?y) { if (not eq(x, y)) { return false } };
+            case _ { return false };
+        };
+    };
+};
 
 func xorshift128plus(seed : Nat) : { next() : Nat } {
     var state0 : Nat64 = Nat64.fromNat(seed);
@@ -62,15 +73,15 @@ type TestData = {
 
 let inputs = List.empty<TestData>();
 
-let sorted_nat8s = BpTree.new<Nat8, Nat>(null);
-let sorted_nat16s = BpTree.new<Nat16, Nat>(null);
-let sorted_nat32s = BpTree.new<Nat32, Nat>(null);
-let sorted_nat64s = BpTree.new<Nat64, Nat>(null);
-let sorted_int8s = BpTree.new<Int8, Nat>(null);
-let sorted_int16s = BpTree.new<Int16, Nat>(null);
-let sorted_int32s = BpTree.new<Int32, Nat>(null);
-let sorted_int64s = BpTree.new<Int64, Nat>(null);
-let sorted_floats = BpTree.new<Float, Nat>(null);
+let sorted_nat8s = Map.empty<Nat8, Nat>();
+let sorted_nat16s = Map.empty<Nat16, Nat>();
+let sorted_nat32s = Map.empty<Nat32, Nat>();
+let sorted_nat64s = Map.empty<Nat64, Nat>();
+let sorted_int8s = Map.empty<Int8, Nat>();
+let sorted_int16s = Map.empty<Int16, Nat>();
+let sorted_int32s = Map.empty<Int32, Nat>();
+let sorted_int64s = Map.empty<Int64, Nat>();
+let sorted_floats = Map.empty<Float, Nat>();
 
 for (i in Nat.rangeInclusive(0, limit - 1)) {
     let record : TestData = {
@@ -89,15 +100,15 @@ for (i in Nat.rangeInclusive(0, limit - 1)) {
     List.add(inputs, record);
 
 
-    ignore BpTree.insert(sorted_nat8s, Cmp.Nat8, record.nat8, i);
-    ignore BpTree.insert(sorted_nat16s, Cmp.Nat16, record.nat16, i);
-    ignore BpTree.insert(sorted_nat32s, Cmp.Nat32, record.nat32, i);
-    ignore BpTree.insert(sorted_nat64s, Cmp.Nat64, record.nat64, i);
-    ignore BpTree.insert(sorted_int8s, Cmp.Int8, record.int8, i);
-    ignore BpTree.insert(sorted_int16s, Cmp.Int16, record.int16, i);
-    ignore BpTree.insert(sorted_int32s, Cmp.Int32, record.int32, i);
-    ignore BpTree.insert(sorted_int64s, Cmp.Int64, record.int64, i);
-    ignore BpTree.insert(sorted_floats, Cmp.Float, record.float, i);
+    Map.add(sorted_nat8s, Nat8.compare, record.nat8, i);
+    Map.add(sorted_nat16s, Nat16.compare, record.nat16, i);
+    Map.add(sorted_nat32s, Nat32.compare, record.nat32, i);
+    Map.add(sorted_nat64s, Nat64.compare, record.nat64, i);
+    Map.add(sorted_int8s, Int8.compare, record.int8, i);
+    Map.add(sorted_int16s, Int16.compare, record.int16, i);
+    Map.add(sorted_int32s, Int32.compare, record.int32, i);
+    Map.add(sorted_int64s, Int64.compare, record.int64, i);
+    Map.add(sorted_floats, Float.compare, record.float, i);
 
 };
 
@@ -108,26 +119,26 @@ suite(
             "Nat8 sortable encoding",
             func() {
 
-                let encoded_nat8s = BpTree.new<Blob, Nat>(null);
+                let encoded_nat8s = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromNat8(r.nat8));
-                    ignore BpTree.insert(encoded_nat8s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_nat8s, Blob.compare, encoded, i);
                 };
 
                 // Verify same ordering
-                assert Itertools.equal(
-                    BpTree.vals(sorted_nat8s),
-                    BpTree.vals(encoded_nat8s),
+                assert iterEqual(
+                    Map.values(sorted_nat8s),
+                    Map.values(encoded_nat8s),
                     Nat.equal,
                 );
 
                 // Verify round-trip conversion
-                assert Itertools.equal(
-                    BpTree.keys(sorted_nat8s),
+                assert iterEqual(
+                    Map.keys(sorted_nat8s),
                     Iter.map<Blob, Nat8>(
-                        BpTree.keys(encoded_nat8s),
+                        Map.keys(encoded_nat8s),
                         func(b : Blob) : Nat8 {
                             ByteUtils.Sorted.toNat8(b.vals());
                         },
@@ -141,24 +152,24 @@ suite(
             "Nat16 sortable encoding",
             func() {
 
-                let encoded_nat16s = BpTree.new<Blob, Nat>(null);
+                let encoded_nat16s = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromNat16(r.nat16));
-                    ignore BpTree.insert(encoded_nat16s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_nat16s, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_nat16s),
-                    BpTree.vals(encoded_nat16s),
+                assert iterEqual(
+                    Map.values(sorted_nat16s),
+                    Map.values(encoded_nat16s),
                     Nat.equal,
                 );
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_nat16s),
+                assert iterEqual(
+                    Map.keys(sorted_nat16s),
                     Iter.map<Blob, Nat16>(
-                        BpTree.keys(encoded_nat16s),
+                        Map.keys(encoded_nat16s),
                         func(b : Blob) : Nat16 {
                             ByteUtils.Sorted.toNat16(b.vals());
                         },
@@ -171,24 +182,24 @@ suite(
         test(
             "Nat32 sortable encoding",
             func() {
-                let encoded_nat32s = BpTree.new<Blob, Nat>(null);
+                let encoded_nat32s = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromNat32(r.nat32));
-                    ignore BpTree.insert(encoded_nat32s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_nat32s, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_nat32s),
-                    BpTree.vals(encoded_nat32s),
+                assert iterEqual(
+                    Map.values(sorted_nat32s),
+                    Map.values(encoded_nat32s),
                     Nat.equal,
                 );
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_nat32s),
+                assert iterEqual(
+                    Map.keys(sorted_nat32s),
                     Iter.map<Blob, Nat32>(
-                        BpTree.keys(encoded_nat32s),
+                        Map.keys(encoded_nat32s),
                         func(b : Blob) : Nat32 {
                             ByteUtils.Sorted.toNat32(b.vals());
                         },
@@ -201,24 +212,24 @@ suite(
         test(
             "Nat64 sortable encoding",
             func() {
-                let encoded_nat64s = BpTree.new<Blob, Nat>(null);
+                let encoded_nat64s = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromNat64(r.nat64));
-                    ignore BpTree.insert(encoded_nat64s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_nat64s, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_nat64s),
-                    BpTree.vals(encoded_nat64s),
+                assert iterEqual(
+                    Map.values(sorted_nat64s),
+                    Map.values(encoded_nat64s),
                     Nat.equal,
                 );
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_nat64s),
+                assert iterEqual(
+                    Map.keys(sorted_nat64s),
                     Iter.map<Blob, Nat64>(
-                        BpTree.keys(encoded_nat64s),
+                        Map.keys(encoded_nat64s),
                         func(b : Blob) : Nat64 {
                             ByteUtils.Sorted.toNat64(b.vals());
                         },
@@ -231,18 +242,18 @@ suite(
         test(
             "Int8 sortable encoding",
             func() {
-                let encoded_int8s = BpTree.new<Blob, Nat>(null);
+                let encoded_int8s = Map.empty<Blob, Nat>();
 
                 // Test full range of Int8 values
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromInt8(r.int8));
-                    ignore BpTree.insert(encoded_int8s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_int8s, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_int8s),
-                    BpTree.vals(encoded_int8s),
+                assert iterEqual(
+                    Map.values(sorted_int8s),
+                    Map.values(encoded_int8s),
                     Nat.equal,
                 );
 
@@ -254,10 +265,10 @@ suite(
                 assert neg_encoded < zero_encoded;
                 assert zero_encoded < pos_encoded;
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_int8s),
+                assert iterEqual(
+                    Map.keys(sorted_int8s),
                     Iter.map<Blob, Int8>(
-                        BpTree.keys(encoded_int8s),
+                        Map.keys(encoded_int8s),
                         func(b : Blob) : Int8 {
                             ByteUtils.Sorted.toInt8(b.vals());
                         },
@@ -270,17 +281,17 @@ suite(
         test(
             "Int16 sortable encoding",
             func() {
-                let encoded_int16s = BpTree.new<Blob, Nat>(null);
+                let encoded_int16s = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromInt16(r.int16));
-                    ignore BpTree.insert(encoded_int16s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_int16s, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_int16s),
-                    BpTree.vals(encoded_int16s),
+                assert iterEqual(
+                    Map.values(sorted_int16s),
+                    Map.values(encoded_int16s),
                     Nat.equal,
                 );
 
@@ -292,10 +303,10 @@ suite(
                 assert min_encoded < zero_encoded;
                 assert zero_encoded < max_encoded;
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_int16s),
+                assert iterEqual(
+                    Map.keys(sorted_int16s),
                     Iter.map<Blob, Int16>(
-                        BpTree.keys(encoded_int16s),
+                        Map.keys(encoded_int16s),
                         func(b : Blob) : Int16 {
                             ByteUtils.Sorted.toInt16(b.vals());
                         },
@@ -308,17 +319,17 @@ suite(
         test(
             "Int32 sortable encoding",
             func() {
-                let encoded_int32s = BpTree.new<Blob, Nat>(null);
+                let encoded_int32s = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromInt32(r.int32));
-                    ignore BpTree.insert(encoded_int32s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_int32s, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_int32s),
-                    BpTree.vals(encoded_int32s),
+                assert iterEqual(
+                    Map.values(sorted_int32s),
+                    Map.values(encoded_int32s),
                     Nat.equal,
                 );
 
@@ -330,10 +341,10 @@ suite(
                 assert min_encoded < zero_encoded;
                 assert zero_encoded < max_encoded;
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_int32s),
+                assert iterEqual(
+                    Map.keys(sorted_int32s),
                     Iter.map<Blob, Int32>(
-                        BpTree.keys(encoded_int32s),
+                        Map.keys(encoded_int32s),
                         func(b : Blob) : Int32 {
                             ByteUtils.Sorted.toInt32(b.vals());
                         },
@@ -346,17 +357,17 @@ suite(
         test(
             "Int64 sortable encoding",
             func() {
-                let encoded_int64s = BpTree.new<Blob, Nat>(null);
+                let encoded_int64s = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromInt64(r.int64));
-                    ignore BpTree.insert(encoded_int64s, Cmp.Blob, encoded, i);
+                    Map.add(encoded_int64s, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_int64s),
-                    BpTree.vals(encoded_int64s),
+                assert iterEqual(
+                    Map.values(sorted_int64s),
+                    Map.values(encoded_int64s),
                     Nat.equal,
                 );
 
@@ -368,10 +379,10 @@ suite(
                 assert min_encoded < zero_encoded;
                 assert zero_encoded < max_encoded;
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_int64s),
+                assert iterEqual(
+                    Map.keys(sorted_int64s),
                     Iter.map<Blob, Int64>(
-                        BpTree.keys(encoded_int64s),
+                        Map.keys(encoded_int64s),
                         func(b : Blob) : Int64 {
                             ByteUtils.Sorted.toInt64(b.vals());
                         },
@@ -384,17 +395,17 @@ suite(
         test(
             "Float sortable encoding",
             func() {
-                let encoded_floats = BpTree.new<Blob, Nat>(null);
+                let encoded_floats = Map.empty<Blob, Nat>();
 
-                for ((i, r) in Itertools.enumerate(List.values(inputs))) {
+                for ((i, r) in Iter.enumerate(List.values(inputs))) {
 
                     let encoded = Blob.fromArray(ByteUtils.Sorted.fromFloat(r.float));
-                    ignore BpTree.insert(encoded_floats, Cmp.Blob, encoded, i);
+                    Map.add(encoded_floats, Blob.compare, encoded, i);
                 };
 
-                assert Itertools.equal(
-                    BpTree.vals(sorted_floats),
-                    BpTree.vals(encoded_floats),
+                assert iterEqual(
+                    Map.values(sorted_floats),
+                    Map.values(encoded_floats),
                     Nat.equal,
                 );
 
@@ -406,10 +417,10 @@ suite(
                 assert neg_encoded < zero_encoded;
                 assert zero_encoded < pos_encoded;
 
-                assert Itertools.equal(
-                    BpTree.keys(sorted_floats),
+                assert iterEqual(
+                    Map.keys(sorted_floats),
                     Iter.map<Blob, Float>(
-                        BpTree.keys(encoded_floats),
+                        Map.keys(encoded_floats),
                         func(b : Blob) : Float {
                             ByteUtils.Sorted.toFloat(b.vals());
                         },
