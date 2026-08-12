@@ -1,11 +1,22 @@
 name: Release
 
-# Pushing a v*.*.* tag runs tests, publishes the Mops library,
+# Automatic publishing is DEACTIVATED: pushing a v*.*.* tag no longer publishes.
+# It never worked here anyway — every tag run (v0.1.2 … v0.2.0) died in "Commit
+# updated mops.toml", because a tag push checks out a detached HEAD with no branch
+# to commit onto — and releases have been cut by hand with `mops publish` instead.
+#
+# Left runnable via workflow_dispatch as an escape hatch. NOTE that the
+# "Set version from tag" step below derives the version from GITHUB_REF_NAME, so a
+# dispatch run from a branch would write that branch's name into mops.toml; fix
+# that step (and the commit step) before relying on this path.
+#
+# To re-enable automatic publishing, restore:
+#   push:
+#     tags:
+#       - "v*.*.*"
 
 on:
-    push:
-        tags:
-            - "v*.*.*"
+    workflow_dispatch:
 
 jobs:
     publish-mops:
