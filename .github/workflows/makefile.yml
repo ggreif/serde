@@ -14,7 +14,7 @@ jobs:
 
     name: Build and test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # No replica step: every test in this repo is `@testmode wasi`, so `mops
       # test` needs moc + wasmtime only, both provided by the mops toolchain.
       - uses: ZenVoich/setup-mops@v1

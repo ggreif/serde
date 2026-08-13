@@ -14,7 +14,7 @@ jobs:
     name: Run Benchmarks and Comment
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # `dfx` replaced by `pocket-ic`: mops' own help marks `dfx` deprecated, and
       # the "use icp-cli" warnings that flooded these logs came from dfx itself.
       # mops provisions pocket-ic from `[toolchain]` in mops.toml.
@@ -26,17 +26,20 @@ jobs:
       - name: Install dependencies
         run: mops install --lock ignore
 
+      # Was peterjgrainger/action-create-branch@v2.2.0, which emits the deprecated
+      # `set-output` command and runs on Node 20. Creating the branch is two lines
+      # of git, so the action (and its deprecations) are not worth carrying.
       - name: Create benchmark-results branch if it doesn't exist
-        uses: peterjgrainger/action-create-branch@v2.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branch: "benchmark-results"
-          sha: "${{ github.event.pull_request.head.sha }}"
+        run: |
+          if git ls-remote --exit-code --heads origin benchmark-results >/dev/null; then
+            echo "benchmark-results already exists"
+          else
+            git push origin "HEAD:refs/heads/benchmark-results"
+          fi
         continue-on-error: true
 
       - name: Checkout out the branch with benchmark results
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: benchmark-results
           path: .benchmark-results-branch/
