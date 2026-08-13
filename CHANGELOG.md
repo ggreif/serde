@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.2.1
+
+Packaging only — no public API changes. Consumers now build on `core` alone: no `base`, no
+`buffer`, no second `core`.
+
+- A build depending on `serde-core` resolves exactly **`core` + `sha2`** (verified with a probe
+  project holding `serde-core` as a non-root dependency, plus a consumer `main.mo` calling
+  `Serde.JSON.fromText`). The same probe previously pulled `buffer@0.1.0` → `base@0.16.0` and
+  `core@1.0.0` alongside `core@2`.
+- Vendored the packages that carried those dependencies, wired by relative import so no downstream
+  root can outvote them: `submodules/buffer` (de-based, `core@2`), `submodules/cbor`,
+  `submodules/xtended-numbers`, `submodules/ByteUtils`. `[dependencies]` is now just `core` and
+  `sha2`.
+- Their `mo:core@1/…` imports became `mo:core/…` (64 sites), which also retires the multi-version
+  `core`. All three trees typecheck against `core@2.4.0` with 0 errors.
+- **If you imported one of those packages *through* serde-core** — `mo:cbor@4.1.0/…`,
+  `mo:xtended-numbers/…`, `mo:buffer@0` — without declaring it yourself, you must now add it to your
+  own `mops.toml`. Relying on a transitive alias was never supported, hence a patch release.
+- Upstream context: `ByteUtils`' org is archived and the `buffer` fix has sat in
+  edjCase/motoko_buffer#1 since 2026-07-15 unanswered. If those land upstream, drop the vendored
+  copies and go back to the registry.
+- `base` remains **dev-only** (`fuzz`, `tests/BenchTypes.mo`) and does not reach consumers.
+- `mops test` passes 16 files (the vendored `buffer` and `ByteUtils` bring their own suites);
+  toolchain `moc = "1.6.0"`, `wasmtime = "47.0.3"`, benches on `pocket-ic`.
+
 ## 0.2.0
 
 De-base: `serde-core`'s own code no longer depends on `mo:base` or `mo:map`.
