@@ -2,7 +2,10 @@ name: Makefile CI
 
 on:
   push:
+    # `core` is this fork's default branch; `main` is kept so the trigger keeps
+    # working if the canonical branch is ever renamed back.
     branches:
+      - core
       - main
   pull_request:
     branches:
