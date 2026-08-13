@@ -37,6 +37,14 @@ jobs:
       - name: Install dependencies
         run: mops install --lock ignore
 
+      # setup-mops exports DFX_MOC_PATH=moc-wrapper, and that wrapper resolves the
+      # compiler via `mops toolchain bin moc --fallback`, whose fallback is "the moc
+      # that comes with dfx" — so every compile probed dfx and logged
+      # `/bin/sh: 1: dfx: not found` now that dfx is gone. moc is pinned in
+      # [toolchain], so point at it directly and skip the probe.
+      - name: Point DFX_MOC_PATH at the pinned moc
+        run: echo "DFX_MOC_PATH=$(mops toolchain bin moc)" >> "$GITHUB_ENV"
+
       # Was peterjgrainger/action-create-branch@v2.2.0, which emits the deprecated
       # `set-output` command and runs on Node 20. Creating the branch is two lines
       # of git, so the action (and its deprecations) are not worth carrying.
@@ -62,7 +70,10 @@ jobs:
         if: github.event_name == 'pull_request'
         id: benchmarks
         run: |
-          mops bench --replica pocket-ic --gc incremental --compare 2>&1 | tee benchmark_results.txt
+          # No 2>&1: this file is pasted verbatim into the PR comment, so stderr
+          # (deprecation notices, replica chatter) must stay in the job log only.
+          set -o pipefail
+          mops bench --replica pocket-ic --gc incremental --compare | tee benchmark_results.txt
           echo "result<<EOF" >> $GITHUB_OUTPUT
           cat benchmark_results.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -89,7 +100,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           set -o pipefail
-          mops bench --replica pocket-ic --gc incremental --save --compare 2>&1 | tee bench-results.md
+          mops bench --replica pocket-ic --gc incremental --save --compare | tee bench-results.md
       - name: Move Generated Results
         if: github.event_name != 'pull_request'
         run: |
