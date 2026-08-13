@@ -17,27 +17,51 @@ jobs:
     name: Run Benchmarks and Comment
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: dfinity/setup-dfx@main
+      - uses: actions/checkout@v7
+      # `dfx` replaced by `pocket-ic`: mops' own help marks `dfx` deprecated, and
+      # the "use icp-cli" warnings that flooded these logs came from dfx itself.
+      # mops provisions pocket-ic from `[toolchain]` in mops.toml.
       - uses: ZenVoich/setup-mops@v1
         with:
-            mops-version: 2.8.1
+            mops-version: 2.22.0
             identity-pem: ${{ secrets.MOPS_IDENTITY_PEM }}
+
+      # setup-mops pins Node 22 internally (actions/setup-node v4.4.0,
+      # `node-version: 22`, with no input to override), so switch afterwards and
+      # reinstall the CLI under Node 24 — switching Node also switches the global
+      # npm prefix, so the mops installed by the action would otherwise fall off
+      # PATH. ic-mops declares `engines: node >=18`.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Reinstall mops on Node 24
+        run: npm i -g ic-mops@2.22.0
 
       - name: Install dependencies
         run: mops install --lock ignore
 
+      # setup-mops exports DFX_MOC_PATH=moc-wrapper, and that wrapper resolves the
+      # compiler via `mops toolchain bin moc --fallback`, whose fallback is "the moc
+      # that comes with dfx" — so every compile probed dfx and logged
+      # `/bin/sh: 1: dfx: not found` now that dfx is gone. moc is pinned in
+      # [toolchain], so point at it directly and skip the probe.
+      - name: Point DFX_MOC_PATH at the pinned moc
+        run: echo "DFX_MOC_PATH=$(mops toolchain bin moc)" >> "$GITHUB_ENV"
+
+      # Was peterjgrainger/action-create-branch@v2.2.0, which emits the deprecated
+      # `set-output` command and runs on Node 20. Creating the branch is two lines
+      # of git, so the action (and its deprecations) are not worth carrying.
       - name: Create benchmark-results branch if it doesn't exist
-        uses: peterjgrainger/action-create-branch@v2.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branch: "benchmark-results"
-          sha: "${{ github.event.pull_request.head.sha }}"
+        run: |
+          if git ls-remote --exit-code --heads origin benchmark-results >/dev/null; then
+            echo "benchmark-results already exists"
+          else
+            git push origin "HEAD:refs/heads/benchmark-results"
+          fi
         continue-on-error: true
 
       - name: Checkout out the branch with benchmark results
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: benchmark-results
           path: .benchmark-results-branch/
@@ -49,7 +73,10 @@ jobs:
         if: github.event_name == 'pull_request'
         id: benchmarks
         run: |
-          mops bench  --gc incremental --compare 2>&1 | tee benchmark_results.txt
+          # No 2>&1: this file is pasted verbatim into the PR comment, so stderr
+          # (deprecation notices, replica chatter) must stay in the job log only.
+          set -o pipefail
+          mops bench --replica pocket-ic --gc incremental --compare | tee benchmark_results.txt
           echo "result<<EOF" >> $GITHUB_OUTPUT
           cat benchmark_results.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -76,7 +103,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           set -o pipefail
-          mops bench  --gc incremental --save --compare 2>&1 | tee bench-results.md
+          mops bench --replica pocket-ic --gc incremental --save --compare | tee bench-results.md
       - name: Move Generated Results
         if: github.event_name != 'pull_request'
         run: |
