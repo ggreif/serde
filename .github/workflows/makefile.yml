@@ -22,6 +22,17 @@ jobs:
             mops-version: 2.22.0
             identity-pem: ${{ secrets.MOPS_IDENTITY_PEM }}
 
+      # setup-mops pins Node 22 internally (actions/setup-node v4.4.0,
+      # `node-version: 22`, with no input to override), so switch afterwards and
+      # reinstall the CLI under Node 24 — switching Node also switches the global
+      # npm prefix, so the mops installed by the action would otherwise fall off
+      # PATH. ic-mops declares `engines: node >=18`.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Reinstall mops on Node 24
+        run: npm i -g ic-mops@2.22.0
+
       - name: Install dependencies
         run: mops install --lock ignore
 
