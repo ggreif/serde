@@ -4,8 +4,8 @@ import Result "mo:core/Result";
 import Text "mo:core/Text";
 
 import JSON "../../submodules/json.mo/src/JSON";
-import NatX "mo:xtended-numbers/NatX";
-import IntX "mo:xtended-numbers/IntX";
+import NatX "../../submodules/xtended-numbers/src/NatX";
+import IntX "../../submodules/xtended-numbers/src/IntX";
 
 import Candid "../Candid";
 import CandidType "../Candid/Types";

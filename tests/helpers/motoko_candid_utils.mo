@@ -27,7 +27,7 @@ import Type "mo:candid/Type";
 import Tag "mo:candid/Tag";
 import PeekableIter "../../src/PeekableIter";
 import Map "mo:map@9.0/Map";
-import FloatX "mo:xtended-numbers/FloatX";
+import FloatX "../../submodules/xtended-numbers/src/FloatX";
 
 import T "../../src/Candid/Types";
 import Utils "../../src/Utils";

@@ -4,7 +4,7 @@ import Nat64 "mo:core/Nat64";
 
 import C "../../../../submodules/parser-combinators.mo/src/Combinators";
 import P "../../../../submodules/parser-combinators.mo/src/Parser";
-import NatX "mo:xtended-numbers/NatX";
+import NatX "../../../../submodules/xtended-numbers/src/NatX";
 
 import Candid "../../Types";
 import { ignoreSpace; hexChar; fromHex; removeUnderscore; listToNat } "Common";
