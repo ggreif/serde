@@ -15,10 +15,11 @@ jobs:
     name: Build and test
     steps:
       - uses: actions/checkout@v4
-      - uses: dfinity/setup-dfx@main
+      # No replica step: every test in this repo is `@testmode wasi`, so `mops
+      # test` needs moc + wasmtime only, both provided by the mops toolchain.
       - uses: ZenVoich/setup-mops@v1
         with:
-            mops-version: 2.8.1
+            mops-version: 2.22.0
             identity-pem: ${{ secrets.MOPS_IDENTITY_PEM }}
 
       - name: Install dependencies

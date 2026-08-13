@@ -15,10 +15,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: dfinity/setup-dfx@main
+      # `dfx` replaced by `pocket-ic`: mops' own help marks `dfx` deprecated, and
+      # the "use icp-cli" warnings that flooded these logs came from dfx itself.
+      # mops provisions pocket-ic from `[toolchain]` in mops.toml.
       - uses: ZenVoich/setup-mops@v1
         with:
-            mops-version: 2.8.1
+            mops-version: 2.22.0
             identity-pem: ${{ secrets.MOPS_IDENTITY_PEM }}
 
       - name: Install dependencies
@@ -46,7 +48,7 @@ jobs:
         if: github.event_name == 'pull_request'
         id: benchmarks
         run: |
-          mops bench  --gc incremental --compare 2>&1 | tee benchmark_results.txt
+          mops bench --replica pocket-ic --gc incremental --compare 2>&1 | tee benchmark_results.txt
           echo "result<<EOF" >> $GITHUB_OUTPUT
           cat benchmark_results.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -73,7 +75,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           set -o pipefail
-          mops bench  --gc incremental --save --compare 2>&1 | tee bench-results.md
+          mops bench --replica pocket-ic --gc incremental --save --compare 2>&1 | tee bench-results.md
       - name: Move Generated Results
         if: github.event_name != 'pull_request'
         run: |

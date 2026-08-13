@@ -25,5 +25,7 @@ candid = "2.4.2"
 bench = "2.0.1"
 
 [toolchain]
-wasmtime = "43.0.0"
+wasmtime = "47.0.3"
 moc = "1.6.0"
+# Benchmarks run on pocket-ic; `dfx` is deprecated per mops' own help.
+pocket-ic = "15.0.0"
