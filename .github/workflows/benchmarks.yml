@@ -66,8 +66,16 @@ jobs:
           ref: benchmark-results
           path: .benchmark-results-branch/
 
+      # Normalise the baseline instead of `mv`-ing it: `mv src dst` nests when `dst`
+      # already exists, and successive saves had stacked three generations on the
+      # branch (.bench/.bench/.bench/...). Only the top level is ever read, so the
+      # nests were dead weight that made the oldest benches — serde and types —
+      # compare against a mixture of generations.
       - name: Move Saved Benchmarks
-        run: mv .benchmark-results-branch/.bench .bench 2>/dev/null || mkdir -p .bench
+        run: |
+          rm -rf .bench && mkdir -p .bench
+          cp .benchmark-results-branch/.bench/*.json .bench/ 2>/dev/null || \
+            echo "no baseline yet — this run establishes it"
 
       - name: Pull Request Benchmarks
         if: github.event_name == 'pull_request'
