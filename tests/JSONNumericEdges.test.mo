@@ -69,6 +69,25 @@ suite(
             },
         );
 
+        // …and this is where that off-by-one actually was. The previous
+        // parser applied the sign to the integer part and then added the
+        // fraction, so every negative number whose integer part is zero
+        // came back positive: -0.5 parsed as 0.5. Anything with a
+        // non-zero integer part (-1.5, -10.5) was fine, which is exactly
+        // why it survived so long — and why all four magnitudes are
+        // pinned here rather than one representative.
+        suite(
+            "a negative fraction keeps its sign",
+            func() {
+                parsesAs("zero integer part", "-0.5", #Float(-0.5));
+                parsesAs("zero integer part, two digits", "-0.25", #Float(-0.25));
+                parsesAs("zero integer part, small", "-0.125", #Float(-0.125));
+                parsesAs("non-zero integer part", "-1.5", #Float(-1.5));
+                parsesAs("two-digit integer part", "-10.5", #Float(-10.5));
+                parsesAs("three-digit integer part", "-100.25", #Float(-100.25));
+            },
+        );
+
         suite(
             "a fractional part or an exponent makes it a Float",
             func() {
@@ -79,12 +98,18 @@ suite(
                 parsesAs("simple fraction", "1.5", #Float(1.5));
                 parsesAs("negative fraction", "-1.5", #Float(-1.5));
                 parsesAs("exponent promotes an integer to Float", "1E2", #Float(100.0));
+                parsesAs("lower-case exponent", "1e2", #Float(100.0));
+                parsesAs("negative exponent", "1E-2", #Float(0.01));
 
-                // Note: `1e+2` — an explicitly-signed positive exponent,
-                // which RFC 8259 allows — is NOT covered here. It is
-                // rejected by the parser this branch ships. That is a
-                // defect rather than a choice, so it is left untested
-                // instead of pinned; see the PR discussion.
+                // RFC 8259's `exp` production is `e [ minus | plus ]
+                // 1*DIGIT` — the plus is explicitly allowed. The
+                // previous parser rejected every one of these as
+                // malformed, which made perfectly ordinary API responses
+                // unparseable.
+                parsesAs("explicitly-signed positive exponent", "1e+2", #Float(100.0));
+                parsesAs("signed exponent, upper case", "1E+2", #Float(100.0));
+                parsesAs("signed exponent with a fraction", "1.5e+3", #Float(1500.0));
+                parsesAs("zero with a signed exponent", "0e+0", #Float(0.0));
             },
         );
 

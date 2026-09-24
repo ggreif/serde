@@ -77,7 +77,39 @@ suite(
             func() {
                 rejects("unknown escape \\q", "\"a\\qb\"");
                 rejects("truncated \\u escape", "\"\\u12\"");
+            },
+        );
+
+        // Malformed surrogate escapes. Every one of these is a rejection
+        // now; under the previous parser five of the six were *fatal* —
+        // not #err but a Wasm trap, so a malformed response body took
+        // the canister down with it. Only the lone high surrogate was
+        // reported as an error. Keeping the whole family here so no
+        // future parser can quietly regress one of them into a crash.
+        suite(
+            "malformed surrogate escapes",
+            func() {
                 rejects("lone high surrogate", "\"\\ud800\"");
+                rejects("lone low surrogate", "\"\\udc00\"");
+                rejects("high surrogate then a non-surrogate", "\"\\ud800\\u0041\"");
+                rejects("two high surrogates", "\"\\ud800\\ud800\"");
+                rejects("low surrogate then high", "\"\\udc00\\ud800\"");
+                rejects("a valid pair written backwards", "\"\\ude00\\ud83d\"");
+            },
+        );
+
+        // RFC 8259 §7: a character below U+0020 may only appear in a
+        // string as an escape. The previous parser accepted all four of
+        // these, and for two of them it silently *deleted* the
+        // character — "a\u{01}b" came back as the two-character "ab" —
+        // so corrupt input was indistinguishable from clean input.
+        suite(
+            "raw control characters in a string",
+            func() {
+                rejects("U+0001", "\"a\u{01}b\"");
+                rejects("U+001F (last control character)", "\"a\u{1f}b\"");
+                rejects("a raw newline", "\"a\nb\"");
+                rejects("a raw tab", "\"a\tb\"");
             },
         );
 
@@ -88,6 +120,14 @@ suite(
                 rejects("bare fraction", ".5");
                 rejects("trailing decimal point", "1.");
                 rejects("double minus", "--1");
+
+                // RFC 8259's `int` production allows a single `0` or a
+                // digit sequence starting 1-9 — never a leading zero.
+                // The previous parser accepted all three of these,
+                // reading "01" as 1 and "-01" as -1.
+                rejects("leading zero", "01");
+                rejects("two zeros", "00");
+                rejects("negative with a leading zero", "-01");
             },
         );
 
