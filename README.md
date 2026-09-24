@@ -4,47 +4,47 @@
 
 <details>
 
-<summary>bench/serde.bench.mo $({\color{green}-0.16\%})$</summary>
+<summary>bench/serde.bench.mo $({\color{red}+0.26\%})$</summary>
 
 ### Benchmarking Serde
 
 _Benchmarking the performance with 1k calls_
 
 
-Instructions: ${\color{green}-0.02\\%}$
-Heap: ${\color{green}-0.15\\%}$
+Instructions: ${\color{red}+0.04\\%}$
+Heap: ${\color{red}+0.23\\%}$
 Stable Memory: ${\color{gray}0\\%}$
-Garbage Collection: ${\color{red}+0.00\\%}$
+Garbage Collection: ${\color{green}-0.00\\%}$
 
 
 **Instructions**
 
-|                                     |                                  decode() |                                  encode() |
-| :---------------------------------- | ----------------------------------------: | ----------------------------------------: |
-| Serde: One Shot                     | 1_030_284_503 $({\color{green}-0.00\\%})$ | 2_073_858_142 $({\color{green}-0.02\\%})$ |
-| Serde: One Shot sans type inference |   488_153_820 $({\color{green}-0.01\\%})$ | 1_478_201_843 $({\color{green}-0.01\\%})$ |
-| Motoko (to_candid(), from_candid()) |    38_863_688 $({\color{green}-0.04\\%})$ |    11_625_896 $({\color{green}-0.05\\%})$ |
-| Serde: Single Type Serializer       |   228_867_718 $({\color{green}-0.01\\%})$ |   444_230_087 $({\color{green}-0.02\\%})$ |
+|                                     |                                decode() |                                encode() |
+| :---------------------------------- | --------------------------------------: | --------------------------------------: |
+| Serde: One Shot                     | 1_030_343_495 $({\color{red}+0.01\\%})$ | 2_074_471_420 $({\color{red}+0.03\\%})$ |
+| Serde: One Shot sans type inference |   488_212_796 $({\color{red}+0.01\\%})$ | 1_478_431_783 $({\color{red}+0.02\\%})$ |
+| Motoko (to_candid(), from_candid()) |    38_883_272 $({\color{red}+0.05\\%})$ |    11_638_685 $({\color{red}+0.11\\%})$ |
+| Serde: Single Type Serializer       |   228_926_706 $({\color{red}+0.03\\%})$ |   444_435_325 $({\color{red}+0.05\\%})$ |
 
 
 **Heap**
 
-|                                     |                              decode() |                               encode() |
-| :---------------------------------- | ------------------------------------: | -------------------------------------: |
-| Serde: One Shot                     | 16.64 MiB $({\color{green}-0.01\\%})$ |   2.27 MiB $({\color{green}-1.08\\%})$ |
-| Serde: One Shot sans type inference |  -19.57 MiB $({\color{red}+0.03\\%})$ |  11.08 MiB $({\color{green}-0.05\\%})$ |
-| Motoko (to_candid(), from_candid()) |  1.16 MiB $({\color{green}-0.04\\%})$ | 666.93 KiB $({\color{green}-0.01\\%})$ |
-| Serde: Single Type Serializer       | 15.85 MiB $({\color{green}-0.02\\%})$ |   -41.74 MiB $({\color{red}+0.01\\%})$ |
+|                                     |                               decode() |                               encode() |
+| :---------------------------------- | -------------------------------------: | -------------------------------------: |
+| Serde: One Shot                     |    16.64 MiB $({\color{red}+0.01\\%})$ |     2.31 MiB $({\color{red}+1.69\\%})$ |
+| Serde: One Shot sans type inference | -19.56 MiB $({\color{green}-0.04\\%})$ |    11.09 MiB $({\color{red}+0.10\\%})$ |
+| Motoko (to_candid(), from_candid()) |     1.16 MiB $({\color{red}+0.07\\%})$ |   666.95 KiB $({\color{red}+0.00\\%})$ |
+| Serde: Single Type Serializer       |    15.86 MiB $({\color{red}+0.03\\%})$ | -41.73 MiB $({\color{green}-0.03\\%})$ |
 
 
 **Garbage Collection**
 
-|                                     |                              decode() |                             encode() |
-| :---------------------------------- | ------------------------------------: | -----------------------------------: |
-| Serde: One Shot                     | 56.57 MiB $({\color{green}-0.00\\%})$ | 119.08 MiB $({\color{red}+0.00\\%})$ |
-| Serde: One Shot sans type inference |   60.08 MiB $({\color{red}+0.01\\%})$ |  55.08 MiB $({\color{red}+0.01\\%})$ |
-| Motoko (to_candid(), from_candid()) |            0 B $({\color{gray}0\\%})$ |           0 B $({\color{gray}0\\%})$ |
-| Serde: Single Type Serializer       |            0 B $({\color{gray}0\\%})$ |  60.07 MiB $({\color{red}+0.00\\%})$ |
+|                                     |                              decode() |                               encode() |
+| :---------------------------------- | ------------------------------------: | -------------------------------------: |
+| Serde: One Shot                     |   56.57 MiB $({\color{red}+0.00\\%})$ | 119.07 MiB $({\color{green}-0.00\\%})$ |
+| Serde: One Shot sans type inference | 60.07 MiB $({\color{green}-0.01\\%})$ |  55.07 MiB $({\color{green}-0.01\\%})$ |
+| Motoko (to_candid(), from_candid()) |            0 B $({\color{gray}0\\%})$ |             0 B $({\color{gray}0\\%})$ |
+| Serde: Single Type Serializer       |            0 B $({\color{gray}0\\%})$ |  60.07 MiB $({\color{green}-0.01\\%})$ |
 
 
 </details>
