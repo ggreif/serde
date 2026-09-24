@@ -209,7 +209,10 @@ suite(
                 let blob = to_candid (float);
                 let (jsonText) = JSON.toText(blob, [], null);
 
-                assert jsonText == #ok("123.12");
+                // Was "123.12": the previous printer rendered every float with
+                // two decimal places, silently discarding the rest. jayson
+                // round-trips the value.
+                assert jsonText == #ok("123.123456789");
             },
         );
         test(
@@ -219,7 +222,7 @@ suite(
                 let blob = to_candid (user);
                 let (jsonText) = JSON.toText(blob, ["name", "id"], null);
 
-                assert jsonText == #ok("{\"id\": null, \"name\": \"Tomi\"}");
+                assert jsonText == #ok("{\"id\":null,\"name\":\"Tomi\"}");
             },
         );
         test(
@@ -251,11 +254,11 @@ suite(
                 let record_json = JSON.toText(record_blob, ["record", "site"], null);
                 let array_json = JSON.toText(array_blob, ["array"], null);
 
-                assert (text_json == #ok("{\"#text\": \"hello\"}"));
-                assert (nat_json == #ok("{\"#nat\": 123}"));
-                assert (bool_json == #ok("{\"#bool\": true}"));
-                assert (record_json == #ok("{\"#record\": {\"site\": \"github\"}}"));
-                assert (array_json == #ok("{\"#array\": [1, 2, 3]}"));
+                assert (text_json == #ok("{\"#text\":\"hello\"}"));
+                assert (nat_json == #ok("{\"#nat\":123}"));
+                assert (bool_json == #ok("{\"#bool\":true}"));
+                assert (record_json == #ok("{\"#record\":{\"site\":\"github\"}}"));
+                assert (array_json == #ok("{\"#array\":[1,2,3]}"));
             },
         );
         test(
@@ -269,8 +272,8 @@ suite(
                     [["hello", "world"], ["foo", "bar"]],
                 ];
 
-                assert (JSON.toText(to_candid (arr2), [], null) == #ok("[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11]]"));
-                assert (JSON.toText(to_candid (arr3), [], null) == #ok("[[[\"hello\", \"world\"], [\"foo\", \"bar\"]], [[\"hello\", \"world\"], [\"foo\", \"bar\"]], [[\"hello\", \"world\"], [\"foo\", \"bar\"]]]"));
+                assert (JSON.toText(to_candid (arr2), [], null) == #ok("[[1,2,3,4],[5,6,7,8],[9,10,11]]"));
+                assert (JSON.toText(to_candid (arr3), [], null) == #ok("[[[\"hello\",\"world\"],[\"foo\",\"bar\"]],[[\"hello\",\"world\"],[\"foo\",\"bar\"]],[[\"hello\",\"world\"],[\"foo\",\"bar\"]]]"));
             },
         );
         test(
@@ -299,7 +302,7 @@ suite(
                 let blob = to_candid (data);
                 let jsonText = JSON.toText(blob, UserDataKeys, ?options);
 
-                assert jsonText == #ok("{\"query\": \"?user_id=12&address=2014%20Forest%20Hill%20Drive\", \"label\": 123}");
+                assert jsonText == #ok("{\"query\":\"?user_id=12&address=2014%20Forest%20Hill%20Drive\",\"label\":123}");
             },
         );
         test(
@@ -326,15 +329,15 @@ suite(
 
                 // Default behaviour: nulls are emitted.
                 let #ok(withNulls) = JSON.toText(blob, keys, null) else Runtime.trap("toText failed");
-                assert Text.contains(withNulls, #text "\"for_super_followers_only\": null");
-                assert Text.contains(withNulls, #text "\"poll\": null");
-                assert Text.contains(withNulls, #text "\"reply_settings\": null");
-                assert Text.contains(withNulls, #text "\"text\": \"hello\"");
+                assert Text.contains(withNulls, #text "\"for_super_followers_only\":null");
+                assert Text.contains(withNulls, #text "\"poll\":null");
+                assert Text.contains(withNulls, #text "\"reply_settings\":null");
+                assert Text.contains(withNulls, #text "\"text\":\"hello\"");
 
                 // With skip_null_fields: null-valued entries are omitted.
                 let options = { Candid.defaultOptions with skip_null_fields = true };
                 let #ok(withoutNulls) = JSON.toText(blob, keys, ?options) else Runtime.trap("toText failed");
-                assert withoutNulls == "{\"text\": \"hello\"}";
+                assert withoutNulls == "{\"text\":\"hello\"}";
 
                 // Non-null optionals still survive.
                 let post2 : Post = {
@@ -345,9 +348,9 @@ suite(
                 };
                 let blob2 = to_candid (post2);
                 let #ok(result) = JSON.toText(blob2, keys, ?options) else Runtime.trap("toText failed");
-                assert Text.contains(result, #text "\"text\": \"hi\"");
-                assert Text.contains(result, #text "\"for_super_followers_only\": false");
-                assert Text.contains(result, #text "\"reply_settings\": \"everyone\"");
+                assert Text.contains(result, #text "\"text\":\"hi\"");
+                assert Text.contains(result, #text "\"for_super_followers_only\":false");
+                assert Text.contains(result, #text "\"reply_settings\":\"everyone\"");
                 assert not Text.contains(result, #text "null");
             },
         );
