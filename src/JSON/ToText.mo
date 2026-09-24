@@ -3,7 +3,7 @@ import Nat32 "mo:core/Nat32";
 import Result "mo:core/Result";
 import Text "mo:core/Text";
 
-import JSON "../../submodules/json.mo/src/JSON";
+import JSON "../../submodules/jayson/src/Json";
 import NatX "../../submodules/xtended-numbers/src/NatX";
 import IntX "../../submodules/xtended-numbers/src/IntX";
 
@@ -13,41 +13,16 @@ import Utils "../Utils";
 
 module {
     let { Buffer } = Utils;
-    type JSON = JSON.JSON;
+    type JSON = JSON.Json;
     type Candid = Candid.Candid;
     type Result<A, B> = Result.Result<A, B>;
 
-    // Escape a Text value for inclusion in a JSON string literal,
-    // per RFC 8259 §7. Order matters: backslash MUST be escaped
-    // first — every later replacement emits a `\`, and a final
-    // backslash pass would re-double those new backslashes.
-    func escapeJSONString(s : Text) : Text {
-        let chained =
-            Text.replace(s, #text "\\", "\\\\")
-            |> Text.replace(_, #text "\"", "\\\"")
-            |> Text.replace(_, #text "\n", "\\n")
-            |> Text.replace(_, #text "\r", "\\r")
-            |> Text.replace(_, #text "\t", "\\t")
-            |> Text.replace(_, #text "\u{08}", "\\b")
-            |> Text.replace(_, #text "\u{0c}", "\\f");
-        // Remaining U+0000..U+001F (minus the named ones above) → \u00XX.
-        let buf = Buffer.Buffer<Char>(chained.size());
-        let hex = Text.toArray("0123456789abcdef");
-        for (c in chained.chars()) {
-            let n = Char.toNat32(c);
-            if (n < 0x20) {
-                buf.add('\\');
-                buf.add('u');
-                buf.add('0');
-                buf.add('0');
-                buf.add(hex[Nat32.toNat(n / 16)]);
-                buf.add(hex[Nat32.toNat(n % 16)]);
-            } else {
-                buf.add(c);
-            };
-        };
-        Text.fromIter(buf.vals())
-    };
+    // No escaping helper here any more. jayson's `stringify` escapes string
+    // values itself — backslash, quote, the named controls and the remaining
+    // U+0000..U+001F as \u00XX — so serde no longer pre-escapes before handing
+    // a value to the printer. The old parser's `show` emitted string contents
+    // verbatim, which produced invalid JSON for any value containing a quote,
+    // a backslash or a control character; escaping here was the workaround.
 
     /// Converts serialized Candid blob to JSON text
     public func toText(blob : Blob, keys : [Text], options : ?CandidType.Options) : Result<Text, Text> {
@@ -73,28 +48,28 @@ module {
         let res = candidToJSON(candid, skip_null_fields);
         let #ok(json) = res else return Utils.send_error(res);
 
-        #ok(JSON.show(json));
+        #ok(JSON.stringify(json));
     };
 
     func candidToJSON(candid : Candid, skip_null_fields : Bool) : Result<JSON, Text> {
         let json : JSON = switch (candid) {
             case (#Null) #Null;
-            case (#Bool(n)) #Boolean(n);
-            case (#Text(n)) #String(escapeJSONString(n));
+            case (#Bool(n)) #Bool(n);
+            case (#Text(n)) #String(n);
 
-            case (#Int(n)) #Number(n);
-            case (#Int8(n)) #Number(IntX.from8ToInt(n));
-            case (#Int16(n)) #Number(IntX.from16ToInt(n));
-            case (#Int32(n)) #Number(IntX.from32ToInt(n));
-            case (#Int64(n)) #Number(IntX.from64ToInt(n));
+            case (#Int(n)) #Number(#Int(n));
+            case (#Int8(n)) #Number(#Int(IntX.from8ToInt(n)));
+            case (#Int16(n)) #Number(#Int(IntX.from16ToInt(n)));
+            case (#Int32(n)) #Number(#Int(IntX.from32ToInt(n)));
+            case (#Int64(n)) #Number(#Int(IntX.from64ToInt(n)));
 
-            case (#Nat(n)) #Number(n);
-            case (#Nat8(n)) #Number(NatX.from8ToNat(n));
-            case (#Nat16(n)) #Number(NatX.from16ToNat(n));
-            case (#Nat32(n)) #Number(NatX.from32ToNat(n));
-            case (#Nat64(n)) #Number(NatX.from64ToNat(n));
+            case (#Nat(n)) #Number(#Int(n));
+            case (#Nat8(n)) #Number(#Int(NatX.from8ToNat(n)));
+            case (#Nat16(n)) #Number(#Int(NatX.from16ToNat(n)));
+            case (#Nat32(n)) #Number(#Int(NatX.from32ToNat(n)));
+            case (#Nat64(n)) #Number(#Int(NatX.from64ToNat(n)));
 
-            case (#Float(n)) #Float(n);
+            case (#Float(n)) #Number(#Float(n));
 
             case (#Option(val)) {
                 let res = switch (val) {
