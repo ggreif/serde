@@ -4,15 +4,15 @@
 
 <details>
 
-<summary>bench/serde.bench.mo $({\color{red}+0.26\%})$</summary>
+<summary>bench/serde.bench.mo $({\color{red}+0.24\%})$</summary>
 
 ### Benchmarking Serde
 
 _Benchmarking the performance with 1k calls_
 
 
-Instructions: ${\color{red}+0.04\\%}$
-Heap: ${\color{red}+0.23\\%}$
+Instructions: ${\color{red}+0.09\\%}$
+Heap: ${\color{red}+0.15\\%}$
 Stable Memory: ${\color{gray}0\\%}$
 Garbage Collection: ${\color{green}-0.00\\%}$
 
@@ -21,30 +21,30 @@ Garbage Collection: ${\color{green}-0.00\\%}$
 
 |                                     |                                decode() |                                encode() |
 | :---------------------------------- | --------------------------------------: | --------------------------------------: |
-| Serde: One Shot                     | 1_030_343_495 $({\color{red}+0.01\\%})$ | 2_074_471_420 $({\color{red}+0.03\\%})$ |
-| Serde: One Shot sans type inference |   488_212_796 $({\color{red}+0.01\\%})$ | 1_478_431_783 $({\color{red}+0.02\\%})$ |
-| Motoko (to_candid(), from_candid()) |    38_883_272 $({\color{red}+0.05\\%})$ |    11_638_685 $({\color{red}+0.11\\%})$ |
-| Serde: Single Type Serializer       |   228_926_706 $({\color{red}+0.03\\%})$ |   444_435_325 $({\color{red}+0.05\\%})$ |
+| Serde: One Shot                     | 1_030_688_336 $({\color{red}+0.03\\%})$ | 2_075_785_411 $({\color{red}+0.06\\%})$ |
+| Serde: One Shot sans type inference |   488_557_621 $({\color{red}+0.07\\%})$ | 1_479_734_077 $({\color{red}+0.09\\%})$ |
+| Motoko (to_candid(), from_candid()) |    38_894_668 $({\color{red}+0.03\\%})$ |    11_643_997 $({\color{red}+0.05\\%})$ |
+| Serde: Single Type Serializer       |   229_271_806 $({\color{red}+0.15\\%})$ |   445_360_803 $({\color{red}+0.21\\%})$ |
 
 
 **Heap**
 
 |                                     |                               decode() |                               encode() |
 | :---------------------------------- | -------------------------------------: | -------------------------------------: |
-| Serde: One Shot                     |    16.64 MiB $({\color{red}+0.01\\%})$ |     2.31 MiB $({\color{red}+1.69\\%})$ |
-| Serde: One Shot sans type inference | -19.56 MiB $({\color{green}-0.04\\%})$ |    11.09 MiB $({\color{red}+0.10\\%})$ |
-| Motoko (to_candid(), from_candid()) |     1.16 MiB $({\color{red}+0.07\\%})$ |   666.95 KiB $({\color{red}+0.00\\%})$ |
-| Serde: Single Type Serializer       |    15.86 MiB $({\color{red}+0.03\\%})$ | -41.73 MiB $({\color{green}-0.03\\%})$ |
+| Serde: One Shot                     |    16.65 MiB $({\color{red}+0.06\\%})$ |     2.33 MiB $({\color{red}+0.71\\%})$ |
+| Serde: One Shot sans type inference | -19.54 MiB $({\color{green}-0.06\\%})$ |    11.11 MiB $({\color{red}+0.16\\%})$ |
+| Motoko (to_candid(), from_candid()) |     1.16 MiB $({\color{red}+0.06\\%})$ |   668.91 KiB $({\color{red}+0.30\\%})$ |
+| Serde: Single Type Serializer       |    15.87 MiB $({\color{red}+0.06\\%})$ | -41.71 MiB $({\color{green}-0.05\\%})$ |
 
 
 **Garbage Collection**
 
 |                                     |                              decode() |                               encode() |
 | :---------------------------------- | ------------------------------------: | -------------------------------------: |
-| Serde: One Shot                     |   56.57 MiB $({\color{red}+0.00\\%})$ | 119.07 MiB $({\color{green}-0.00\\%})$ |
-| Serde: One Shot sans type inference | 60.07 MiB $({\color{green}-0.01\\%})$ |  55.07 MiB $({\color{green}-0.01\\%})$ |
+| Serde: One Shot                     |      56.57 MiB $({\color{gray}0\\%})$ | 119.07 MiB $({\color{green}-0.00\\%})$ |
+| Serde: One Shot sans type inference | 60.07 MiB $({\color{green}-0.00\\%})$ |  55.07 MiB $({\color{green}-0.00\\%})$ |
 | Motoko (to_candid(), from_candid()) |            0 B $({\color{gray}0\\%})$ |             0 B $({\color{gray}0\\%})$ |
-| Serde: Single Type Serializer       |            0 B $({\color{gray}0\\%})$ |  60.07 MiB $({\color{green}-0.01\\%})$ |
+| Serde: Single Type Serializer       |            0 B $({\color{gray}0\\%})$ |  60.07 MiB $({\color{green}-0.00\\%})$ |
 
 
 </details>
