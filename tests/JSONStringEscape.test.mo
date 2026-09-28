@@ -68,7 +68,10 @@ suite(
         // \u00XX fallback for unnamed control chars.
         roundTrip("NUL U+0000", "a\u{00}b", "\"a\\u0000b\"");
         roundTrip("U+0001 (start-of-heading)", "a\u{01}b", "\"a\\u0001b\"");
-        roundTrip("U+001F (boundary, last control char)", "a\u{1f}b", "\"a\\u001fb\"");
+        // jayson emits the hex digits of a \uXXXX escape in upper case; the previous
+        // hand-rolled encoder used lower case. RFC 8259 §7 fixes neither, and every
+        // parser accepts both.
+        roundTrip("U+001F (boundary, last control char)", "a\u{1f}b", "\"a\\u001Fb\"");
         // U+0020 (space) is NOT a control char and must NOT be escaped.
         roundTrip("U+0020 (space, just above boundary)", "a b", "\"a b\"");
 

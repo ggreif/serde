@@ -3,7 +3,7 @@ import Result "mo:core/Result";
 import Text "mo:core/Text";
 import Int "mo:core/Int";
 
-import JSON "../../submodules/json.mo/src/JSON";
+import JSON "../../submodules/jayson/src/Json";
 
 import Candid "../Candid";
 import U "../Utils";
@@ -11,7 +11,7 @@ import CandidType "../Candid/Types";
 import Utils "../Utils";
 
 module {
-    type JSON = JSON.JSON;
+    type JSON = JSON.Json;
     type Candid = Candid.Candid;
     type Result<A, B> = Result.Result<A, B>;
 
@@ -35,16 +35,22 @@ module {
     func jsonToCandid(json : JSON) : Candid {
         switch (json) {
             case (#Null) #Null;
-            case (#Boolean(n)) #Bool(n);
-            case (#Number(n)) {
+            case (#Bool(n)) #Bool(n);
+            // jayson keeps JSON's single number type and tags the parsed form,
+            // instead of the old parser's separate #Number/#Float cases.
+            case (#Number(#Int n)) {
                 if (n < 0) {
                     return #Int(n);
                 };
 
                 #Nat(Int.abs(n));
             };
-            case (#Float(n)) #Float(n);
-            case (#String(n)) #Text(Text.replace(n, #text("\\\""), ("\"")));
+            case (#Number(#Float n)) #Float(n);
+            // No un-escaping here any more: jayson's parser resolves \" , \\ ,
+            // \n and \uXXXX while reading, so the text handed over is already
+            // the decoded value. The old parser did not, and this call patched
+            // up exactly one of those cases.
+            case (#String(n)) #Text(n);
             case (#Array(arr)) {
                 let newArr = Array.map(
                     arr,

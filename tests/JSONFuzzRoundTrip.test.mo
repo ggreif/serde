@@ -19,10 +19,13 @@ import { Candid; JSON } "../src";
 // Random text is where escaping bugs live: the string-escape defect
 // that broke OpenAI request bodies was exactly this shape.
 //
-// Floats are deliberately excluded. Their round-trip is not the
-// identity on this branch (the printer truncates to two decimal
-// places), so a float property test cannot be green here; it belongs
-// with the change that fixes the printer.
+// Floats are included, and they are the reason this file is worth
+// having. The previous printer emitted two decimal places and nothing
+// more, so the round-trip was not the identity for almost any real
+// value: 123.123456789 came back 123.12, pi came back 3.14, and 1e-300
+// came back 0. Every connector sending a float — quantities, rates,
+// coordinates, ratings — silently lost precision. A property test over
+// random doubles is what pins the fix.
 
 let fuzz = Fuzz.fromSeed(0x5e2de10a);
 let limit = 500;
@@ -110,6 +113,42 @@ suite(
                 for (_ in Nat.range(0, limit)) {
                     assert roundTrips(#Bool(fuzz.bool.random()));
                 };
+            },
+        );
+
+        test(
+            "Float, over the whole range the generator produces",
+            func() {
+                for (_ in Nat.range(0, limit)) {
+                    assert roundTrips(#Float(fuzz.float.random()));
+                };
+            },
+        );
+
+        test(
+            "Float, in the range everyday payloads live in",
+            func() {
+                for (_ in Nat.range(0, limit)) {
+                    assert roundTrips(#Float(fuzz.float.randomRange(-1000.0, 1000.0)));
+                };
+            },
+        );
+
+        test(
+            "Float values that the old printer destroyed",
+            func() {
+                // Named rather than random, because each of these is a
+                // specific way two decimal places was not enough. The
+                // comment against each is what the old printer emitted.
+                assert roundTrips(#Float(123.123456789)); // 123.12
+                assert roundTrips(#Float(3.141592653589793)); // 3.14
+                assert roundTrips(#Float(0.1)); // 0.10
+                assert roundTrips(#Float(2.0)); // 2.00
+                assert roundTrips(#Float(-0.5)); // -0.50, reparsed as 0.5
+                assert roundTrips(#Float(1.0e300)); // a 300-digit expansion
+                assert roundTrips(#Float(1.0e-300)); // 0.00 — total loss
+                assert roundTrips(#Float(-1.0e-300));
+                assert roundTrips(#Float(0.0));
             },
         );
 
