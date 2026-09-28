@@ -1,5 +1,73 @@
 # Changelog
 
+## 0.3.0
+
+New JSON parser and printer: `submodules/json.mo` (aviate-labs) is replaced by the parser from
+**jayson 0.1.1** by Christoph Hegemann, vendored as `submodules/jayson/src/Json.mo`. A minor bump
+rather than a patch, because serialiser output changed for every consumer — see *What you may feel*
+below.
+
+Vendored rather than depended on: the jayson *package* declares `[requirements] moc = "1.14.0"` for
+its codec layer, which a dependency would push onto every consumer of `serde-core`. `Json.mo` alone
+uses no implicit arguments and needs only `core`; it compiles clean under moc 1.6.0 and 1.16.0.
+Provenance, commit SHA and sha256 are recorded in `submodules/jayson/PROVENANCE.md`.
+`submodules/parser-combinators.mo` stays — UrlEncoded and the Candid text parser still use it.
+
+### Six classes of defect fixed
+
+- **Five malformed inputs crashed the canister.** Malformed surrogate escapes — a lone low
+  surrogate, a high surrogate followed by a non-surrogate, two highs, a low then a high, and a
+  reversed pair — trapped (`wasm unreachable`) instead of returning `#err`. Since JSON parsing runs
+  on HTTP response bodies, any endpoint returning one took the calling canister down. A lone *high*
+  surrogate was correctly rejected, which disguised the rest of the family.
+- **Negative fractions lost their sign.** The sign was applied to the integer part and the fraction
+  added afterwards, so any negative number with a zero integer part came back positive: `-0.5`
+  parsed as `0.5`, `-0.25` as `0.25`. `-1.5` and `-10.5` were unaffected, which is why it survived.
+- **No recursion guard.** The parser descended without bound, accepted 2000 levels of nesting and on
+  a deep enough body exhausted the Wasm stack and trapped. Input past **512** levels is now refused
+  with an `#err`.
+- **Floats were truncated to two decimal places.** `123.123456789` serialised as `123.12`, pi as
+  `3.14`, `1e-300` as `0`. Every connector sending a float — quantities, rates, coordinates,
+  ratings — was losing precision.
+- **Valid JSON rejected, invalid JSON accepted.** RFC 8259's `exp` production allows a signed
+  exponent, but `1e+2`, `1E+2`, `1.5e+3` and `0e+0` were rejected as malformed. Conversely, leading
+  zeros (`01` read as `1`) and raw control characters inside strings were accepted — with U+0001 and
+  U+001F silently *deleted*, making corrupt input indistinguishable from clean.
+- **String escaping lived in the wrong place.** The old `show` emitted string contents verbatim,
+  producing invalid JSON for any value containing a quote, backslash or control character;
+  `ToText.mo` compensated with `escapeJSONString` before every call. jayson's `stringify` escapes per
+  RFC 8259 section 7 itself, so that helper is **deleted** and the invariant lives in the printer.
+  `FromText.mo`'s matching input-side `Text.replace` hack goes too.
+
+### What you may feel
+
+All of these are output or acceptance changes, not API changes — same modules, same signatures:
+
+- **Floats print in full precision.** `123.12` becomes `123.123456789`, `1.50` becomes `1.5`.
+- **Output is compact.** `{"a": 1}` becomes `{"a":1}`, which also trims bytes off every outcall body.
+- **Unicode escapes use upper-case hex digits**, where the previous encoder used lower case. RFC 8259
+  fixes neither case and every parser accepts both.
+- **Parsing is stricter**: leading zeros and raw control characters in strings are now rejected, and
+  nesting deeper than 512 levels is refused.
+- **Parsing is also looser**: signed positive exponents (`1e+2`) now parse.
+
+If you assert on serialised JSON as text, expect golden-string diffs. Values round-trip unchanged.
+
+### Tests
+
+**215 to 357.** Beyond the 31 cases pinning the fixes above, this release adds 111 cases closing
+gaps the suite had regardless of the parser swap: the first negative tests (all 27 prior uses of
+`#err` were error-unwrapping on the success path), property tests for JSON, UrlEncoded and CBOR
+(only Candid was fuzzed before), coverage for `Candid.decodeOne` and `JSON.fromCandidWith` (both
+exported with zero test references), and for `src/Candid/Text/Parser/` (15 modules, ~900 lines that
+nothing called).
+
+Three defects in **UrlEncoded** surfaced while writing those and are *not* fixed here — they are
+pinned as characterisation tests marked `KNOWN DEFECT` so a later fix fails loudly: it does no
+percent-encoding in either direction, so a value containing `&` makes the wire text un-decodable and
+one containing `=` is silently truncated; an empty value decodes as `#Null` rather than `#Text("")`;
+and a percent-escape in input arrives as literal characters.
+
 ## 0.2.1
 
 Packaging only — no public API changes. Consumers now build on `core` alone: no `base`, no
